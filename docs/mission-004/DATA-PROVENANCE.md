@@ -1,0 +1,11 @@
+# Data provenance and trust
+
+SYNTHETIC means fictional examples explicitly selected or preserved from the old laboratory. IMPORTED means source-supplied records, including genuine historical results/prices, without a claim of live verification. COLLECTED means obtained through the configured bounded HTTP connector; schema validation does not prove factual correctness. INFERRED means a derived interpretation. UNCERTAIN flags a conflicting identity while preserving both original records. INVALID inputs reject the complete import; they are never converted to zero measurements. VERIFIED is reserved for named integrity/acceptance checks, not a blanket claim about records.
+
+Observation time is retained only when the source supplies a timezone-aware timestamp. A historical match's calendar date stays in metadata with its unknown clock/timezone; collection time cannot replace it. Forecast issue and valid clocks are both required and ordered. Missing quote times remain null. Units must be explicit; unknown units are labeled. Conversions create derived values and never rewrite raw originals.
+
+Completeness and consistency warnings accompany every record. Source configuration and acquisition receipts preserve mappings, source IDs, content hashes, counts and errors. Raw source files are staged under the selected data directory. Duplicate content from the same source/mapping is idempotent. Conflicting record identities are retained with warnings, not silently overwritten. No automatic fuzzy identity merging is used.
+
+The football adapter reads the existing owner's SQLite database without modifying its application or data. Historical results, historical prices, statistical forecasts and virtual strategies remain different concepts. The candidate does not claim live bookmaker connectivity. Personally retained Football-Data odds remain local and are not included in distributable software.
+
+Statistics show a dataset fingerprint, inputs, method and limitations. Confidence intervals use an explicit normal approximation and independent-sample assumption. Numerical outliers are review candidates. The basic sentiment method is a small English lexicon, not validated multilingual AI. Optional AI receives at most 50 scoped records and cannot call write operations; all output is labeled AI_INTERPRETATION.

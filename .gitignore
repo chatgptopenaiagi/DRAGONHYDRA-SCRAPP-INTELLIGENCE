@@ -1,0 +1,9 @@
+__pycache__/
+*.pyc
+.venv/
+evidence/
+runtime/
+dist/
+*.sqlite3*
+*.key
+*.log

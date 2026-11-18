@@ -1,0 +1,9 @@
+# Loopback session boundary
+
+The server binds only 127.0.0.1, validates the exact Host including port, rejects cross-origin/cross-site requests and does not enable CORS. A private launcher credential is generated with Python secrets and stored under a current-user/SYSTEM ACL. It never appears in browser storage, URLs or logs.
+
+The native launcher exchanges that credential for a cryptographically random ticket valid for 45 seconds and one use. A short-lived ticket appears in the URL fragment only until bootstrap immediately removes it; bootstrap sends it in a same-origin JSON POST. The response sets a random HttpOnly, SameSite=Strict session cookie named per listening port. Sessions expire after one hour or 15 idle minutes, and can be revoked individually or globally. They are memory-only and do not survive a server restart. Cookie scope is 127.0.0.1; the cookie name isolates ports. HTTP loopback means the cookie does not assert TLS transport. Other processes running as the same Windows user are inside the local-user trust boundary.
+
+Browser state-changing requests require exact Origin, application/json and a per-session CSRF value held only in JavaScript memory. The public bootstrap cannot mint new tickets. Authentication failures produce an explicit reopen-from-launcher message. Static assets have a restrictive CSP and all source text is rendered through textContent. Tokens, request paths and payloads are excluded from access logs.
+
+Design references: [OWASP session management](https://cheatsheetseries.owasp.org/cheatsheets/Session_Management_Cheat_Sheet.html), [OWASP CSRF prevention](https://cheatsheetseries.owasp.org/cheatsheets/Cross-Site_Request_Forgery_Prevention_Cheat_Sheet.html), and [SQLite online backup](https://www.sqlite.org/backup.html). Acceptance evidence describes tests actually run, independently of these design references.

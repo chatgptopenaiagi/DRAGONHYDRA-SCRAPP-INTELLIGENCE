@@ -1,0 +1,21 @@
+{
+  "version": "0.2.0-beta.1",
+  "status": "READY_WITH_DOCUMENTED_BETA_LIMITATIONS",
+  "behavioral_checks": 45,
+  "packaged_edge_checks": 27,
+  "source_recovery_checks": 7,
+  "independent_package_checks": 44,
+  "portable": "PASS",
+  "installer_standard_upgrade_uninstall": "PASS",
+  "installer_user_data_preservation": "PASS",
+  "original_evidence_preservation": "PASS",
+  "sql_integration": "BLOCKED",
+  "actual_joomla_integration": "BLOCKED",
+  "php_bridge_isolated": "PASS",
+  "real_ai_model": "NOT_RUN",
+  "live_external_feed": "NOT_RUN",
+  "native_buttons_exhaustive_automation": "NOT_RUN",
+  "code_signing": false,
+  "production_certified": false,
+  "tests_run_on": "Windows x64; Python runtime bundled; application started without development interpreter PATH"
+}
