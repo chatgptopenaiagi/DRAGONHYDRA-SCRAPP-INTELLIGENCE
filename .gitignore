@@ -6,4 +6,5 @@ runtime/
 dist/
 *.sqlite3*
 *.key
+*.dpapi
 *.log

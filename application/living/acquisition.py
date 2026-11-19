@@ -93,9 +93,13 @@ def sqlite_rows(path,table):
 class Acquisition:
     def __init__(self,store,data_dir,mode='offline'):
         self.store=store;self.data=Path(data_dir);self.mode=mode;self.stop=threading.Event();self.cancelled=set();self.thread=None;self.due={}
+        from .csv_import import CsvWizard
+        self.csv=CsvWizard(store,data_dir);self.providers=None
     def submit(self,source_id,upload=None,filename=None):
         source=next((s for s in self.store.sources() if s['id']==source_id),None)
         if source is None:raise ValueError('Configure a source before collection')
+        if source['adapter']=='provider':raise Blocked('Use Football API Control Center to test or collect from this provider')
+        if source['adapter']=='upload' and upload is None:raise Blocked('Choose a file for this source in Import Data, then preview and validate it before importing')
         payload={'source_id':source_id,'source':source,'attempt':0}
         if upload is not None:
             raw=base64.b64decode(upload,validate=True)
@@ -120,6 +124,10 @@ class Acquisition:
         cancelled=lambda:id in self.cancelled or self.stop.is_set()
         try:
             if cancelled():raise Cancelled('Task cancelled')
+            if p.get('operation')=='csv':
+                result=self.csv.execute(task,cancelled);self.store.task_update(id,'COMPLETE',100,result);return
+            if p.get('operation')=='provider':
+                result=self.providers.execute(task,cancelled);self.store.task_update(id,'COMPLETE',100,result);return
             method=adapter;version=None
             if adapter in ('football','legacy'):
                 from .connectors import football_rows,legacy_rows
@@ -166,8 +174,9 @@ class Acquisition:
     def start(self):
         def run():
             while not self.stop.wait(.2):
+                if self.providers:self.providers.schedule()
                 for s in self.store.sources():
-                    if s.get('enabled') and s['adapter']!='upload' and time.monotonic()>=self.due.get(s['id'],0):
+                    if s.get('enabled') and s['adapter'] not in ('upload','provider') and time.monotonic()>=self.due.get(s['id'],0):
                         self.due[s['id']]=time.monotonic()+int(s['interval'])
                         try:self.submit(s['id'])
                         except ValueError:pass

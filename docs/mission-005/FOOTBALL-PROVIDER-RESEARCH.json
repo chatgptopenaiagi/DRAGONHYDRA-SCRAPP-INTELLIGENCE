@@ -1,0 +1,218 @@
+{
+  "verified_at": "2026-11-19",
+  "monthly_mandatory_cost_eur": 0,
+  "purchases_authorized": false,
+  "providers": [
+    {
+      "slot": "1",
+      "identity": "APIfootball.com",
+      "official_website": "https://apifootball.com/",
+      "documentation": "https://apifootball.com/documentation/",
+      "base_url": "https://apiv3.apifootball.com",
+      "auth": {
+        "method": "query",
+        "name": "APIkey"
+      },
+      "response_format": "JSON",
+      "verification_date": "2026-11-19",
+      "source_urls": [
+        "https://apifootball.com/documentation/",
+        "https://apifootball.com/"
+      ],
+      "documentation_status": "VERIFIED_OFFICIAL_DOCUMENTATION",
+      "live_acceptance": "Consult execution receipts; not inferred from documentation",
+      "restrictions": "Free: England Championship and France Ligue 2; odds advertised, access unverified until returned. Query authentication is required by this provider; requests and secrets are never logged.",
+      "local_budget_policy": {
+        "rolling_24h_cap": 180,
+        "window_limit": 180,
+        "window_seconds": 3600
+      },
+      "free": "180 requests/hour/endpoint; England Championship and France Ligue 2",
+      "paid": "$21/month European",
+      "history": "Results documented; exact free history depth unconfirmed",
+      "live": "Livescore advertised; not authenticated live-tested",
+      "odds": "1X2, BTS, O/U, AH advertised on free plan; actual odds access NOT_RUN",
+      "pagination": "No pagination documented for selected actions; bounded date range",
+      "pricing": "https://apifootball.com/"
+    },
+    {
+      "slot": "2",
+      "identity": "API-Football (API-Sports)",
+      "official_website": "https://www.api-football.com/",
+      "documentation": "https://www.api-football.com/documentation-v3",
+      "base_url": "https://v3.football.api-sports.io",
+      "auth": {
+        "method": "header",
+        "name": "x-apisports-key"
+      },
+      "response_format": "JSON",
+      "verification_date": "2026-11-19",
+      "source_urls": [
+        "https://www.api-football.com/documentation-v3",
+        "https://www.api-football.com/pricing/"
+      ],
+      "documentation_status": "VERIFIED_OFFICIAL_DOCUMENTATION",
+      "live_acceptance": "Consult execution receipts; not inferred from documentation",
+      "restrictions": "Free: 100 requests/day; seasons restricted. Coverage and odds availability must be checked for the selected competition. Only direct API-Sports keys are supported.",
+      "local_budget_policy": {
+        "rolling_24h_cap": 100,
+        "window_limit": 10,
+        "window_seconds": 60
+      },
+      "free": "100/day; competitions/endpoints advertised; limited seasons",
+      "paid": "$16/month Pro, excluding VAT",
+      "history": "Restricted free seasons; discover coverage from leagues",
+      "live": "Livescore and in-play odds advertised; NOT_RUN",
+      "odds": "Pre-match and in-play advertised; implemented pre-match only; NOT_RUN",
+      "pagination": "paging.current/total; page query parameter on paginated endpoints",
+      "pricing": "https://www.api-football.com/pricing/"
+    },
+    {
+      "slot": "3",
+      "identity": "TheSportsDB",
+      "official_website": "https://www.thesportsdb.com/",
+      "documentation": "https://www.thesportsdb.com/documentation",
+      "base_url": "https://www.thesportsdb.com",
+      "auth": {
+        "method": "public-demo",
+        "name": null
+      },
+      "response_format": "JSON",
+      "verification_date": "2026-11-19",
+      "source_urls": [
+        "https://www.thesportsdb.com/documentation",
+        "https://www.thesportsdb.com/API.php"
+      ],
+      "documentation_status": "VERIFIED_OFFICIAL_DOCUMENTATION",
+      "live_acceptance": "Consult execution receipts; not inferred from documentation",
+      "restrictions": "Free public v1 demo key 123. Endpoint result caps apply; whole-season completeness is not guaranteed. V2 live scores require premium access and are disabled.",
+      "local_budget_policy": {
+        "rolling_24h_cap": 100,
+        "window_limit": 30,
+        "window_seconds": 60
+      },
+      "free": "Public key 123; 30/minute; endpoint-specific returned-record caps",
+      "paid": "$9/month dedicated premium key/v2",
+      "history": "v1 historical events and seasons; free records may be capped",
+      "live": "v2 live scores premium; disabled",
+      "odds": "No bookmaker odds endpoint established",
+      "pagination": "No page parameter documented for selected v1 endpoints; report caps, never claim full season",
+      "pricing": "https://www.thesportsdb.com/API.php"
+    },
+    {
+      "slot": "4",
+      "identity": "Highlightly",
+      "official_website": "https://highlightly.net/football-api/",
+      "documentation": "https://highlightly.net/football-api/documentation/",
+      "base_url": "https://soccer.highlightly.net",
+      "auth": {
+        "method": "header",
+        "name": "x-rapidapi-key"
+      },
+      "response_format": "JSON",
+      "verification_date": "2026-11-19",
+      "source_urls": [
+        "https://highlightly.net/football-api/documentation/",
+        "https://highlightly.net/football-api/"
+      ],
+      "documentation_status": "VERIFIED_OFFICIAL_DOCUMENTATION",
+      "live_acceptance": "Consult execution receipts; not inferred from documentation",
+      "restrictions": "Free Basic: 100 requests/day. Odds are excluded from the free plan and disabled. Results may be restricted by plan; returned plan notices are retained. Direct Highlightly keys only.",
+      "local_budget_policy": {
+        "rolling_24h_cap": 100,
+        "window_limit": 10,
+        "window_seconds": 60
+      },
+      "free": "Basic 100/day; selected football data; plan restrictions",
+      "paid": "$9.49/month Pro, 7500/day",
+      "history": "League seasons and match records documented; exact free historical depth unknown",
+      "live": "Scores/events documented; update frequency varies by endpoint",
+      "odds": "Excluded from Free/Basic; disabled",
+      "pagination": "pagination.totalCount/offset/limit; offset and limit query fields",
+      "pricing": "https://highlightly.net/football-api/"
+    },
+    {
+      "slot": "5",
+      "identity": "football-data.org",
+      "official_website": "https://www.football-data.org/",
+      "documentation": "https://docs.football-data.org/general/v4/index.html",
+      "base_url": "https://api.football-data.org",
+      "auth": {
+        "method": "header",
+        "name": "X-Auth-Token"
+      },
+      "response_format": "JSON",
+      "verification_date": "2026-11-19",
+      "source_urls": [
+        "https://docs.football-data.org/general/v4/index.html",
+        "https://www.football-data.org/pricing"
+      ],
+      "documentation_status": "VERIFIED_OFFICIAL_DOCUMENTATION",
+      "live_acceptance": "Consult execution receipts; not inferred from documentation",
+      "restrictions": "Free: 12 competitions, delayed scores and schedules, 10 requests/minute. Live scores and deeper data require paid plans; no odds connector is enabled.",
+      "local_budget_policy": {
+        "rolling_24h_cap": 100,
+        "window_limit": 10,
+        "window_seconds": 60
+      },
+      "free": "12 competitions; delayed scores/schedules; tables; 10/minute",
+      "paid": "€12/month entry with live scores; deeper plans separately priced",
+      "history": "Free historical depth not established; paid ten-season history advertised",
+      "live": "Free delayed; live entry paid",
+      "odds": "No odds endpoint enabled",
+      "pagination": "Selected competition resources return arrays; season/date filters bound results",
+      "pricing": "https://www.football-data.org/pricing"
+    },
+    {
+      "slot": "6",
+      "identity": "OpenLigaDB",
+      "official_website": "https://www.openligadb.de/",
+      "documentation": "https://api.openligadb.de/index.html",
+      "base_url": "https://api.openligadb.de",
+      "auth": {
+        "method": "none",
+        "name": null
+      },
+      "response_format": "JSON",
+      "verification_date": "2026-11-19",
+      "source_urls": [
+        "https://api.openligadb.de/index.html",
+        "https://api.openligadb.de/swagger/v1/swagger.json"
+      ],
+      "documentation_status": "VERIFIED_OFFICIAL_DOCUMENTATION",
+      "live_acceptance": "Consult execution receipts; not inferred from documentation",
+      "restrictions": "Public community data under ODbL 1.0; no key. 60 requests/minute/IP. This client uses a conservative 24/day cap and six-hour minimum schedule; cache historical seasons. Accuracy is not guaranteed.",
+      "local_budget_policy": {
+        "rolling_24h_cap": 24,
+        "window_limit": 60,
+        "window_seconds": 60
+      },
+      "free": "Anonymous public access; 60/minute/IP; application cap 24/day",
+      "paid": "No mandatory paid tier documented",
+      "history": "Community-maintained seasons; actual 2025 Bundesliga matchday data retrieved",
+      "live": "Community updates with possible delay/gaps; no accuracy guarantee",
+      "odds": "No odds endpoint documented",
+      "pagination": "No pagination; league/season/matchday path bounds",
+      "pricing": "https://api.openligadb.de/swagger/v1/swagger.json"
+    },
+    {
+      "slot": null,
+      "identity": "Football Charts",
+      "optional": true,
+      "website": "https://www.football-charts.com/developers",
+      "base_url": "https://footballcharts-backend.onrender.com/api/v1",
+      "documentation": "https://www.football-charts.com/developers",
+      "auth": "REST Bearer; anonymous demo available",
+      "free": "25 REST/day without key; 200/day confirmed free key; 60/minute; personal use",
+      "paid": "Personal €9/month through 2026-11-30; €19 new subscriptions from 2026-12-01; Commercial €39/month",
+      "history": "Free current/previous seasons; paid seasons since 2020",
+      "odds": "No bookmaker odds; model probabilities are predictions",
+      "mcp": "Read-only tools; hosted endpoint or optional npm client documented; not installed",
+      "restrictions": "Attribution; free/personal own use; shared apps require commercial terms; raw redistribution restrictions",
+      "verification_date": "2026-11-19",
+      "implementation": "NOT_RUN_OPTIONAL",
+      "live_acceptance": "NOT_RUN"
+    }
+  ],
+  "method": "Official pages reviewed through web tools; bounded local capture receipts retain successes and HTTP 403 documentation capture failures. Documentation claims do not establish account entitlement."
+}

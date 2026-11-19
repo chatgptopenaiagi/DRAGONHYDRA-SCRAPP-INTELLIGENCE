@@ -41,7 +41,7 @@ class DataTests(unittest.TestCase):
         with self.assertRaises(ValueError):Store(p)
         self.assertEqual(p.read_bytes(),original)
     def test_migrate_schema1(self):
-        self.s.c.execute('PRAGMA user_version=1');self.s.close();self.s=Store(self.data/'intelligence.sqlite3');self.assertEqual(self.s.summary()['schema'],2)
+        self.s.c.execute('PRAGMA user_version=1');self.s.close();self.s=Store(self.data/'intelligence.sqlite3');self.assertEqual(self.s.summary()['schema'],3)
     def test_backup_and_restore(self):
         self.s.ingest([row(1)],{'id':'a'});backup=self.data/'saved.sqlite3';self.s.backup(backup);self.s.ingest([row(2)],{'id':'b'});self.s.close();restore(self.data,backup);self.s=Store(self.data/'intelligence.sqlite3');self.assertEqual(self.s.summary()['observations'],1);self.assertTrue(list((self.data/'backups').glob('before-restore-*')))
     def test_unknown_time_not_invented(self):

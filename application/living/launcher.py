@@ -1,5 +1,5 @@
 """DH-UI native launcher and process ownership. Never stops a process by stale PID."""
-import argparse,json,os,sqlite3,subprocess,sys,time,webbrowser
+import argparse,json,os,sqlite3,subprocess,sys,time,webbrowser,hmac,secrets,socket
 from contextlib import closing
 from pathlib import Path
 from .contracts import now,atomic_json,fingerprint,file_hash
@@ -21,6 +21,9 @@ def request(data,path,body=None):
     if not isinstance(port,int) or not 1024<=port<=65535:raise ValueError('Invalid ready-file port')
     secret=(Path(data)/'private/launcher.key').read_text().strip();c=http.client.HTTPConnection('127.0.0.1',port,timeout=10)
     try:
+        challenge=secrets.token_hex(32);c.request('GET','/auth/identity?challenge='+challenge);probe=c.getresponse();identity=json.loads(probe.read(4096));data_id=fingerprint(str(Path(data).resolve()))
+        proof=hmac.new(secret.encode(),(challenge+'|'+data_id).encode(),'sha256').hexdigest()
+        if probe.status!=200 or identity.get('data_id')!=data_id or not hmac.compare_digest(identity.get('proof',''),proof):raise RuntimeError('The listening service does not own this data directory. Its credentials were not sent.')
         c.request('POST' if body is not None else 'GET',path,json.dumps(body) if body is not None else None,{'X-DH-Local':secret,'Content-Type':'application/json'})
         r=c.getresponse();result=json.loads(r.read())
         if r.status>=400:raise RuntimeError(result.get('error','Operation failed'))
@@ -34,14 +37,18 @@ def running(data):
 def open_dashboard(data,view='overview'):
     ticket=request(data,'/api/session-ticket',{})['ticket'];ready=json.loads((Path(data)/'ready.json').read_text());url=f'http://127.0.0.1:{ready["port"]}/#ticket={ticket}&view={view}'
     webbrowser.open(url)
-def ensure(data,port=18976,mode='offline',guard=None):
+def ensure(data,port=18977,mode='offline',guard=None):
     data=Path(data).resolve()
     existing=running(data)
     if existing:
-        if existing['mode']!=mode:raise ValueError('This candidate is already running in '+existing['mode']+' mode. Stop it gracefully before changing modes.')
+        if existing['mode']!=mode:request(data,'/api/mode',{'mode':mode});existing=running(data)
         return existing
     data.mkdir(parents=True,exist_ok=True)
     if (data/'offline-demo.sqlite3').exists():raise ValueError('The original candidate data directory is protected; select another directory')
+    with Lease(data/'worker.lock'):pass
+    with socket.socket() as probe:
+        try:probe.bind(('127.0.0.1',port))
+        except OSError:raise ValueError(f'Port {port} is occupied by another service. Select port 0 (Find free port) to use an independent service. No process was stopped.') from None
     ready=data/'ready.json'
     if ready.exists():ready.rename(data/('ready.stale-'+str(time.time_ns())+'.json'))
     cmd=[sys.executable]+([] if getattr(sys,'frozen',False) else [str(Path(__file__).parents[1]/'living_launch.py')])
@@ -67,7 +74,7 @@ def restore(data,backup):
     from .storage import Store,OWNER
     with Lease(data/'worker.lock'):
         with closing(sqlite3.connect(backup.as_uri()+'?mode=ro',uri=True)) as c:
-            if dict(c.execute('SELECT key,value FROM metadata')).get('owner')!=OWNER or c.execute('PRAGMA user_version').fetchone()[0]!=2 or c.execute('PRAGMA integrity_check').fetchone()[0]!='ok':raise ValueError('Invalid or foreign backup')
+            if dict(c.execute('SELECT key,value FROM metadata')).get('owner')!=OWNER or c.execute('PRAGMA user_version').fetchone()[0] not in (2,3) or c.execute('PRAGMA integrity_check').fetchone()[0]!='ok':raise ValueError('Invalid or foreign backup')
             target=data/('restore-'+str(time.time_ns())+'.sqlite3')
             with closing(sqlite3.connect(target)) as out:c.backup(out)
         current=data/'intelligence.sqlite3'
@@ -88,7 +95,7 @@ def serve(args):
     with Lease(data/'worker.lock'):
         rt=None;server=None
         try:
-            secret=local_secret(data);bridge_secret=local_secret(data,'bridge.key');rt=Runtime(data,args.mode,args.sql_guard);server=Server(('127.0.0.1',args.port),rt,secret,bridge_secret)
+            secret=local_secret(data);bridge_secret=local_secret(data,'bridge.key');rt=Runtime(data,args.mode,args.sql_guard,getattr(args,'mock_provider_origin',()));server=Server(('127.0.0.1',args.port),rt,secret,bridge_secret)
             atomic_json(data/'ready.json',dict(pid=os.getpid(),port=server.server_address[1],data_id=fingerprint(str(data)),started_at=now(),version=__import__('living').VERSION))
             server.serve_forever(poll_interval=.1)
         except BaseException as e:
@@ -103,7 +110,7 @@ def serve(args):
 def native(args):
     import tkinter as tk
     from tkinter import ttk,messagebox,filedialog
-    root=tk.Tk();root.title('DRAGONHYDRA Intelligence · 0.2.0 beta');root.geometry('680x560');root.minsize(640,530)
+    root=tk.Tk();root.title('DRAGONHYDRA Intelligence · 0.2.0 beta.2');root.geometry('700x650');root.minsize(660,600)
     style=ttk.Style();style.theme_use('clam')
     frame=ttk.Frame(root,padding=24);frame.pack(fill='both',expand=True)
     ttk.Label(frame,text='DRAGONHYDRA',font=('Segoe UI',24,'bold')).pack(anchor='w')
@@ -112,12 +119,13 @@ def native(args):
     ttk.Label(frame,text='Selected data directory').pack(anchor='w');ttk.Entry(frame,textvariable=data).pack(fill='x',pady=5)
     modes=ttk.Frame(frame);modes.pack(fill='x')
     ttk.Radiobutton(modes,text='Offline',variable=mode,value='offline').pack(side='left');ttk.Radiobutton(modes,text='Configured connections',variable=mode,value='connected').pack(side='left',padx=20)
+    port=tk.IntVar(value=args.port);ports=ttk.Frame(frame);ports.pack(fill='x',pady=8);ttk.Label(ports,text='Local port (0 chooses a free port)').pack(side='left');ttk.Entry(ports,textvariable=port,width=8).pack(side='left',padx=8);ttk.Button(ports,text='Find free port',command=lambda:port.set(0)).pack(side='left')
     ttk.Label(frame,textvariable=status,wraplength=610).pack(fill='x',pady=16)
     def action(fn):
         try:fn();refresh()
         except Exception as e:messagebox.showerror('DRAGONHYDRA',str(e))
-    def start():ensure(data.get(),args.port,mode.get(),args.sql_guard);open_dashboard(data.get())
-    def view(name):ensure(data.get(),args.port,mode.get(),args.sql_guard);open_dashboard(data.get(),name)
+    def start():ensure(data.get(),port.get(),mode.get(),args.sql_guard);open_dashboard(data.get())
+    def view(name):ensure(data.get(),port.get(),mode.get(),args.sql_guard);open_dashboard(data.get(),name)
     def backup():
         ensure(data.get(),args.port,mode.get(),args.sql_guard);r=request(data.get(),'/api/backup',{});messagebox.showinfo('Verified backup',r['name']+'\nSHA-256: '+r['sha256'])
     def restore_ui():
@@ -134,7 +142,7 @@ def native(args):
     refresh();root.mainloop()
 def main():
     default=Path(os.environ.get('LOCALAPPDATA',str(Path.home())))/'DRAGONHYDRA/LivingIntelligence'
-    p=argparse.ArgumentParser();p.add_argument('--serve',action='store_true');p.add_argument('--open',action='store_true');p.add_argument('--stop',action='store_true');p.add_argument('--data-dir',type=Path,default=default);p.add_argument('--port',type=int,default=18976);p.add_argument('--mode',choices=['offline','connected'],default='offline');p.add_argument('--sql-guard');a=p.parse_args()
+    p=argparse.ArgumentParser();p.add_argument('--serve',action='store_true');p.add_argument('--open',action='store_true');p.add_argument('--stop',action='store_true');p.add_argument('--data-dir',type=Path,default=default);p.add_argument('--port',type=int,default=18977);p.add_argument('--mode',choices=['offline','connected'],default='offline');p.add_argument('--sql-guard');p.add_argument('--mock-provider-origin',action='append',default=[],help=argparse.SUPPRESS);a=p.parse_args()
     if a.port!=0 and not 1024<=a.port<=65535:p.error('Port must be zero or 1024..65535')
     if a.serve:serve(a)
     elif a.stop:stop(a.data_dir)

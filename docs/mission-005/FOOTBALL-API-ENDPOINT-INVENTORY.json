@@ -1,0 +1,265 @@
+{
+  "verified_at": "2026-11-19",
+  "endpoints": [
+    {
+      "provider": "APIfootball.com",
+      "category": "competitions",
+      "base_url": "https://apiv3.apifootball.com",
+      "path_template": "/?action=get_leagues",
+      "documentation": "https://apifootball.com/documentation/",
+      "verification_date": "2026-11-19",
+      "implemented": true,
+      "notes": "Private credentials are injected only during transport; never recorded in path templates"
+    },
+    {
+      "provider": "APIfootball.com",
+      "category": "fixtures/results",
+      "base_url": "https://apiv3.apifootball.com",
+      "path_template": "/?action=get_events&league_id={id}&from={date}&to={date}",
+      "documentation": "https://apifootball.com/documentation/",
+      "verification_date": "2026-11-19",
+      "implemented": true,
+      "notes": "Private credentials are injected only during transport; never recorded in path templates"
+    },
+    {
+      "provider": "APIfootball.com",
+      "category": "standings",
+      "base_url": "https://apiv3.apifootball.com",
+      "path_template": "/?action=get_standings&league_id={id}",
+      "documentation": "https://apifootball.com/documentation/",
+      "verification_date": "2026-11-19",
+      "implemented": true,
+      "notes": "Private credentials are injected only during transport; never recorded in path templates"
+    },
+    {
+      "provider": "APIfootball.com",
+      "category": "teams",
+      "base_url": "https://apiv3.apifootball.com",
+      "path_template": "/?action=get_teams&league_id={id}",
+      "documentation": "https://apifootball.com/documentation/",
+      "verification_date": "2026-11-19",
+      "implemented": true,
+      "notes": "Private credentials are injected only during transport; never recorded in path templates"
+    },
+    {
+      "provider": "APIfootball.com",
+      "category": "odds",
+      "base_url": "https://apiv3.apifootball.com",
+      "path_template": "/?action=get_odds&league_id={id}&from={date}&to={date}",
+      "documentation": "https://apifootball.com/documentation/",
+      "verification_date": "2026-11-19",
+      "implemented": true,
+      "notes": "Private credentials are injected only during transport; never recorded in path templates"
+    },
+    {
+      "provider": "API-Football (API-Sports)",
+      "category": "competitions",
+      "base_url": "https://v3.football.api-sports.io",
+      "path_template": "/leagues",
+      "documentation": "https://www.api-football.com/documentation-v3",
+      "verification_date": "2026-11-19",
+      "implemented": true,
+      "notes": "Private credentials are injected only during transport; never recorded in path templates"
+    },
+    {
+      "provider": "API-Football (API-Sports)",
+      "category": "fixtures/results",
+      "base_url": "https://v3.football.api-sports.io",
+      "path_template": "/fixtures?league={id}&season={year}",
+      "documentation": "https://www.api-football.com/documentation-v3",
+      "verification_date": "2026-11-19",
+      "implemented": true,
+      "notes": "Private credentials are injected only during transport; never recorded in path templates"
+    },
+    {
+      "provider": "API-Football (API-Sports)",
+      "category": "standings",
+      "base_url": "https://v3.football.api-sports.io",
+      "path_template": "/standings?league={id}&season={year}",
+      "documentation": "https://www.api-football.com/documentation-v3",
+      "verification_date": "2026-11-19",
+      "implemented": true,
+      "notes": "Private credentials are injected only during transport; never recorded in path templates"
+    },
+    {
+      "provider": "API-Football (API-Sports)",
+      "category": "teams",
+      "base_url": "https://v3.football.api-sports.io",
+      "path_template": "/teams?league={id}&season={year}",
+      "documentation": "https://www.api-football.com/documentation-v3",
+      "verification_date": "2026-11-19",
+      "implemented": true,
+      "notes": "Private credentials are injected only during transport; never recorded in path templates"
+    },
+    {
+      "provider": "API-Football (API-Sports)",
+      "category": "odds",
+      "base_url": "https://v3.football.api-sports.io",
+      "path_template": "/odds?league={id}&season={year}&page={page}",
+      "documentation": "https://www.api-football.com/documentation-v3",
+      "verification_date": "2026-11-19",
+      "implemented": true,
+      "notes": "Private credentials are injected only during transport; never recorded in path templates"
+    },
+    {
+      "provider": "TheSportsDB",
+      "category": "connection",
+      "base_url": "https://www.thesportsdb.com",
+      "path_template": "/api/v1/json/123/all_leagues.php",
+      "documentation": "https://www.thesportsdb.com/documentation",
+      "verification_date": "2026-11-19",
+      "implemented": true,
+      "notes": "Private credentials are injected only during transport; never recorded in path templates"
+    },
+    {
+      "provider": "TheSportsDB",
+      "category": "teams",
+      "base_url": "https://www.thesportsdb.com",
+      "path_template": "/api/v1/json/123/searchteams.php?t={team}",
+      "documentation": "https://www.thesportsdb.com/documentation",
+      "verification_date": "2026-11-19",
+      "implemented": true,
+      "notes": "Private credentials are injected only during transport; never recorded in path templates"
+    },
+    {
+      "provider": "TheSportsDB",
+      "category": "fixtures/results",
+      "base_url": "https://www.thesportsdb.com",
+      "path_template": "/api/v1/json/123/eventsseason.php?id={league}&s={season}",
+      "documentation": "https://www.thesportsdb.com/documentation",
+      "verification_date": "2026-11-19",
+      "implemented": true,
+      "notes": "Private credentials are injected only during transport; never recorded in path templates"
+    },
+    {
+      "provider": "TheSportsDB",
+      "category": "standings",
+      "base_url": "https://www.thesportsdb.com",
+      "path_template": "/api/v1/json/123/lookuptable.php?l={league}&s={season}",
+      "documentation": "https://www.thesportsdb.com/documentation",
+      "verification_date": "2026-11-19",
+      "implemented": true,
+      "notes": "Private credentials are injected only during transport; never recorded in path templates"
+    },
+    {
+      "provider": "Highlightly",
+      "category": "competitions",
+      "base_url": "https://soccer.highlightly.net",
+      "path_template": "/leagues?limit=100&offset={offset}",
+      "documentation": "https://highlightly.net/football-api/documentation/",
+      "verification_date": "2026-11-19",
+      "implemented": true,
+      "notes": "Private credentials are injected only during transport; never recorded in path templates"
+    },
+    {
+      "provider": "Highlightly",
+      "category": "fixtures/results",
+      "base_url": "https://soccer.highlightly.net",
+      "path_template": "/matches?leagueId={id}&season={year}&limit=100&offset={offset}",
+      "documentation": "https://highlightly.net/football-api/documentation/",
+      "verification_date": "2026-11-19",
+      "implemented": true,
+      "notes": "Private credentials are injected only during transport; never recorded in path templates"
+    },
+    {
+      "provider": "Highlightly",
+      "category": "standings",
+      "base_url": "https://soccer.highlightly.net",
+      "path_template": "/standings?leagueId={id}&season={year}",
+      "documentation": "https://highlightly.net/football-api/documentation/",
+      "verification_date": "2026-11-19",
+      "implemented": true,
+      "notes": "Private credentials are injected only during transport; never recorded in path templates"
+    },
+    {
+      "provider": "football-data.org",
+      "category": "competitions",
+      "base_url": "https://api.football-data.org",
+      "path_template": "/v4/competitions",
+      "documentation": "https://docs.football-data.org/general/v4/index.html",
+      "verification_date": "2026-11-19",
+      "implemented": true,
+      "notes": "Private credentials are injected only during transport; never recorded in path templates"
+    },
+    {
+      "provider": "football-data.org",
+      "category": "fixtures/results",
+      "base_url": "https://api.football-data.org",
+      "path_template": "/v4/competitions/{id}/matches?season={year}",
+      "documentation": "https://docs.football-data.org/general/v4/index.html",
+      "verification_date": "2026-11-19",
+      "implemented": true,
+      "notes": "Private credentials are injected only during transport; never recorded in path templates"
+    },
+    {
+      "provider": "football-data.org",
+      "category": "standings",
+      "base_url": "https://api.football-data.org",
+      "path_template": "/v4/competitions/{id}/standings?season={year}",
+      "documentation": "https://docs.football-data.org/general/v4/index.html",
+      "verification_date": "2026-11-19",
+      "implemented": true,
+      "notes": "Private credentials are injected only during transport; never recorded in path templates"
+    },
+    {
+      "provider": "football-data.org",
+      "category": "teams",
+      "base_url": "https://api.football-data.org",
+      "path_template": "/v4/competitions/{id}/teams?season={year}",
+      "documentation": "https://docs.football-data.org/general/v4/index.html",
+      "verification_date": "2026-11-19",
+      "implemented": true,
+      "notes": "Private credentials are injected only during transport; never recorded in path templates"
+    },
+    {
+      "provider": "OpenLigaDB",
+      "category": "competitions",
+      "base_url": "https://api.openligadb.de",
+      "path_template": "/getavailableleagues/{season}",
+      "documentation": "https://api.openligadb.de/index.html",
+      "verification_date": "2026-11-19",
+      "implemented": true,
+      "notes": "Private credentials are injected only during transport; never recorded in path templates"
+    },
+    {
+      "provider": "OpenLigaDB",
+      "category": "fixtures/results",
+      "base_url": "https://api.openligadb.de",
+      "path_template": "/getmatchdata/{leagueShortcut}/{season}/{optionalMatchday}",
+      "documentation": "https://api.openligadb.de/index.html",
+      "verification_date": "2026-11-19",
+      "implemented": true,
+      "notes": "Private credentials are injected only during transport; never recorded in path templates"
+    },
+    {
+      "provider": "OpenLigaDB",
+      "category": "standings",
+      "base_url": "https://api.openligadb.de",
+      "path_template": "/getbltable/{leagueShortcut}/{season}",
+      "documentation": "https://api.openligadb.de/index.html",
+      "verification_date": "2026-11-19",
+      "implemented": true,
+      "notes": "Private credentials are injected only during transport; never recorded in path templates"
+    },
+    {
+      "provider": "OpenLigaDB",
+      "category": "teams",
+      "base_url": "https://api.openligadb.de",
+      "path_template": "/getavailableteams/{leagueShortcut}/{season}",
+      "documentation": "https://api.openligadb.de/index.html",
+      "verification_date": "2026-11-19",
+      "implemented": true,
+      "notes": "Private credentials are injected only during transport; never recorded in path templates"
+    },
+    {
+      "provider": "OpenLigaDB",
+      "category": "change_detection",
+      "base_url": "https://api.openligadb.de",
+      "path_template": "/getlastchangedate/{leagueShortcut}/{season}/{groupOrderId}",
+      "documentation": "https://api.openligadb.de/index.html",
+      "verification_date": "2026-11-19",
+      "implemented": false,
+      "notes": "Private credentials are injected only during transport; never recorded in path templates"
+    }
+  ]
+}

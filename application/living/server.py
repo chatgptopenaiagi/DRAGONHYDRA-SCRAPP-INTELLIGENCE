@@ -43,9 +43,15 @@ class Handler(BaseHTTPRequestHandler):
             if self.headers.get('Sec-Fetch-Site') in ('cross-site','same-site'):return self.send(403,{'error':'Cross-site requests are rejected'})
             if len(self.path)>8000:return self.send(414,{'error':'URL too long'})
             p=urlsplit(self.path);path=p.path;query={k:v[0] for k,v in parse_qs(p.query).items()}
-            if not post and path in ('/','/app.js','/app.css'):
-                name={'/':'index.html','/app.js':'app.js','/app.css':'app.css'}[path]
-                return self.send(200,(Path(__file__).with_name('web')/name).read_bytes(),{'/':'text/html','/app.js':'text/javascript','/app.css':'text/css'}[path])
+            if not post and path in ('/','/app.js','/sources.js','/app.css'):
+                name='index.html' if path=='/' else path[1:]
+                return self.send(200,(Path(__file__).with_name('web')/name).read_bytes(),'text/html' if path=='/' else 'text/css' if path.endswith('.css') else 'text/javascript')
+            if not post and path=='/auth/identity':
+                from .contracts import fingerprint
+                challenge=query.get('challenge','')
+                if len(challenge)!=64 or any(c not in '0123456789abcdef' for c in challenge):raise ValueError('Invalid identity challenge')
+                data_id=fingerprint(str(rt.data));proof=hmac.new(server.auth.secret.encode(),(challenge+'|'+data_id).encode(),'sha256').hexdigest()
+                return self.send(200,{'data_id':data_id,'proof':proof,'product':'DRAGONHYDRA SCRAPP INTELLIGENCE'})
             body={}
             if post:
                 length=int(self.headers.get('Content-Length','0'))
@@ -70,7 +76,20 @@ class Handler(BaseHTTPRequestHandler):
                 if path=='/api/logout':server.auth.revoke(token);return self.send(200,{'status':'LOGGED_OUT'},cookie='')
                 if path=='/api/revoke':server.auth.revoke_all();return self.send(200,{'status':'REVOKED'},cookie='')
                 if path=='/api/source':return self.send(200,rt.configure_source(body))
+                if path=='/api/mode':return self.send(200,rt.set_mode(body.get('mode')))
+                if path=='/api/provider/configure':return self.send(200,rt.providers.configure(body))
+                if path=='/api/provider/credential':return self.send(200,rt.providers.credential(body))
+                if path=='/api/provider/credential/remove':return self.send(200,rt.providers.credential(body,True))
+                if path=='/api/provider/remove':return self.send(200,rt.providers.remove(body['slot']))
+                if path=='/api/provider/test':return self.send(202,rt.providers.submit(body['slot'],'test'))
+                if path=='/api/provider/collect':return self.send(202,rt.providers.submit(body['slot']))
+                if path=='/api/football/alias':
+                    from .football_comparison import save_alias
+                    return self.send(200,save_alias(rt.store,body))
                 if path=='/api/import':return self.send(202,{'task_id':rt.acquisition.submit(body['source_id'],body.get('content'),body.get('filename'))})
+                if path=='/api/csv/preview':return self.send(200,rt.acquisition.csv.preview(body))
+                if path=='/api/csv/validate':return self.send(200,rt.acquisition.csv.validate(body))
+                if path=='/api/csv/confirm':return self.send(202,rt.acquisition.csv.confirm(body))
                 if path=='/api/task/cancel':rt.acquisition.cancelled.add(body['id']);return self.send(200,{'status':'CANCELLATION_REQUESTED'})
                 if path=='/api/task/resume':rt.acquisition.resume(body['id']);return self.send(200,{'status':'QUEUED'})
                 if path=='/api/backup':return self.send(200,rt.backup())
@@ -98,6 +117,10 @@ class Handler(BaseHTTPRequestHandler):
                 if path=='/api/session':return self.send(200,{'csrf':session['csrf'] if session else None,'authenticated':True})
                 if path=='/api/status':return self.send(200,rt.status())
                 if path=='/api/tasks':return self.send(200,rt.store.tasks())
+                if path=='/api/providers':return self.send(200,rt.providers.list())
+                if path=='/api/football/comparison':
+                    from .football_comparison import compare
+                    return self.send(200,compare(rt.store,query))
                 if path=='/api/analyses':return self.send(200,rt.store.analyses())
                 if path=='/api/backups':return self.send(200,[{'name':p.name,'bytes':p.stat().st_size} for p in sorted((rt.data/'backups').glob('*.sqlite3'))])
                 if path=='/api/odds':return self.send(200,odds(query['value']))

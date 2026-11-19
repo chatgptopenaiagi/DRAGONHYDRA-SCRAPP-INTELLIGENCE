@@ -18,10 +18,13 @@ class Store:
         if tables:
             try: meta=dict(self.c.execute('SELECT key,value FROM metadata'))
             except sqlite3.Error: self.c.close();raise ValueError('Unowned database; original database will not be migrated') from None
-            if meta.get('owner')!=OWNER or self.c.execute('PRAGMA user_version').fetchone()[0] not in (1,2):
+            if meta.get('owner')!=OWNER or self.c.execute('PRAGMA user_version').fetchone()[0] not in (1,2,3):
                 self.c.close();raise ValueError('Unowned or unsupported database version')
         t=time.perf_counter();self.integrity=self.c.execute('PRAGMA integrity_check').fetchone()[0];self.integrity_ms=(time.perf_counter()-t)*1000
         if self.integrity!='ok':self.c.close();raise ValueError('Database integrity failed; restore a verified backup')
+        if tables and self.c.execute('PRAGMA user_version').fetchone()[0]<3:
+            backup=self.path.with_name(self.path.name+'.before-schema3-'+str(time.time_ns()))
+            with closing(sqlite3.connect(backup)) as out:self.c.backup(out)
         self.c.execute('PRAGMA foreign_keys=ON');self.c.execute('PRAGMA journal_mode=WAL');self.c.execute('PRAGMA synchronous=FULL')
         self.c.executescript('''BEGIN IMMEDIATE;
 CREATE TABLE IF NOT EXISTS metadata(key TEXT PRIMARY KEY,value TEXT NOT NULL);
@@ -32,18 +35,26 @@ CREATE TABLE IF NOT EXISTS tasks(id TEXT PRIMARY KEY,state TEXT NOT NULL,created
 CREATE TABLE IF NOT EXISTS events(id INTEGER PRIMARY KEY,at TEXT NOT NULL,level TEXT NOT NULL,code TEXT NOT NULL,detail TEXT NOT NULL);
 CREATE TABLE IF NOT EXISTS analyses(id TEXT PRIMARY KEY,payload TEXT NOT NULL);
 CREATE TABLE IF NOT EXISTS aliases(scope TEXT NOT NULL,original TEXT NOT NULL,canonical TEXT NOT NULL,PRIMARY KEY(scope,original));
+CREATE TABLE IF NOT EXISTS component_state(scope TEXT NOT NULL,id TEXT NOT NULL,payload TEXT NOT NULL,PRIMARY KEY(scope,id));
 CREATE TRIGGER IF NOT EXISTS immutable_update BEFORE UPDATE ON observations BEGIN SELECT RAISE(ABORT,'Original observations are immutable'); END;
 CREATE TRIGGER IF NOT EXISTS immutable_delete BEFORE DELETE ON observations BEGIN SELECT RAISE(ABORT,'Original observations are immutable'); END;
 CREATE INDEX IF NOT EXISTS observation_time ON observations(observed_at,collected_at);
 CREATE INDEX IF NOT EXISTS observation_scope ON observations(source,series,unit,origin);
 CREATE INDEX IF NOT EXISTS observation_identity ON observations(source,identity_key,series,origin);
 INSERT OR IGNORE INTO metadata VALUES('owner','dragonhydra.living-intelligence');
-PRAGMA user_version=2;
+PRAGMA user_version=3;
 COMMIT;''')
         with self.c:self.c.execute('INSERT OR IGNORE INTO metadata VALUES(?,?)',('owner',OWNER))
         with self.c:
             self.c.execute("UPDATE tasks SET state='INTERRUPTED',updated_at=? WHERE state='RUNNING'",(now(),))
-        self.event('INFO','STARTUP_INTEGRITY','SQLite integrity checked; schema 2; interrupted tasks retained')
+        self.event('INFO','STARTUP_INTEGRITY','SQLite integrity checked; schema 3; interrupted tasks retained')
+    def state(self,scope,id,value=None):
+        with self.lock,self.c:
+            if value is not None:self.c.execute('INSERT INTO component_state VALUES(?,?,?) ON CONFLICT(scope,id) DO UPDATE SET payload=excluded.payload',(scope,str(id),encode(value)))
+            r=self.c.execute('SELECT payload FROM component_state WHERE scope=? AND id=?',(scope,str(id))).fetchone()
+            return json.loads(r[0]) if r else None
+    def states(self,scope):
+        with self.lock:return [json.loads(r[0]) for r in self.c.execute('SELECT payload FROM component_state WHERE scope=? ORDER BY id',(scope,))]
     def event(self,level,code,detail):
         with self.lock,self.c:self.c.execute('INSERT INTO events(at,level,code,detail) VALUES(?,?,?,?)',(now(),level,code,str(detail)[:500]))
     def source(self,item):
@@ -91,7 +102,7 @@ COMMIT;''')
         where=' WHERE '+' AND '.join(clauses) if clauses else ''
         with self.lock:
             total=self.c.execute('SELECT COUNT(*) FROM observations'+where,params).fetchone()[0]
-            rows=[json.loads(r[0]) for r in self.c.execute('SELECT payload FROM observations'+where+' ORDER BY COALESCE(observed_at,collected_at),id LIMIT ? OFFSET ?',params+[limit,offset])]
+            rows=[json.loads(r[0]) for r in self.c.execute("SELECT payload FROM observations"+where+" ORDER BY COALESCE(observed_at,json_extract(payload,'$.metadata.date'),collected_at),id LIMIT ? OFFSET ?",params+[limit,offset])]
         return dict(total=total,rows=rows,limit=limit,offset=offset)
     def summary(self):
         with self.lock:
@@ -100,7 +111,7 @@ COMMIT;''')
                     'series':[dict(r) for r in self.c.execute('SELECT source,series,unit,origin,COUNT(*) n FROM observations GROUP BY source,series,unit,origin')],
                     'receipts':[json.loads(r[0]) for r in self.c.execute('SELECT payload FROM receipts ORDER BY rowid DESC LIMIT 30')],
                     'events':[dict(r) for r in self.c.execute('SELECT * FROM events ORDER BY id DESC LIMIT 40')],
-                    'integrity':self.integrity,'integrity_ms':self.integrity_ms,'schema':2}
+                    'integrity':self.integrity,'integrity_ms':self.integrity_ms,'schema':3}
     def save_analysis(self,result):
         with self.lock,self.c:self.c.execute('INSERT OR IGNORE INTO analyses VALUES(?,?)',(result['id'],encode(result)))
     def analyses(self):
