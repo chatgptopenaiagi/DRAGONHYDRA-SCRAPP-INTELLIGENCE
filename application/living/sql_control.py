@@ -3,6 +3,7 @@ import json,os,re,socket,time,uuid
 from pathlib import Path
 from contextlib import closing
 from .contracts import now,fingerprint,Blocked
+from .sql_readonly import ReadOnlyQueries
 OWNER='dragonhydra.living-intelligence.mission006';PREFIX='DRAGONHYDRA_M006_'
 def ident(name):
     if not re.fullmatch(r'[A-Za-z_][A-Za-z0-9_]{0,79}',name):raise ValueError('Invalid owned SQL identifier')
@@ -43,14 +44,16 @@ MIGRATIONS=[
  "IF OBJECT_ID('dh006.SyncCheckpoints') IS NULL CREATE TABLE dh006.SyncCheckpoints(id nvarchar(80) PRIMARY KEY,completed_at nvarchar(40) NOT NULL,source_fingerprint char(64) NOT NULL,inserted int NOT NULL,duplicates int NOT NULL)"]
 for table in ('Competitions','Teams','Fixtures','MatchResults','Statistics','OddsQuotations'):
     MIGRATIONS.append(f"IF OBJECT_ID('dh006.{table}') IS NULL CREATE TABLE dh006.{table}(observation_id char(64) PRIMARY KEY REFERENCES dh006.Observations(id),external_id nvarchar(400) NULL,competition nvarchar(200) NULL,season nvarchar(80) NULL,home_team nvarchar(200) NULL,away_team nvarchar(200) NULL,measurement nvarchar(100) NULL,unit nvarchar(80) NULL,metadata nvarchar(max) NOT NULL CHECK(ISJSON(metadata)=1))")
-class SqlControl:
+class SqlControl(ReadOnlyQueries):
     def __init__(self,store,data,guard=None,connector=None):
         self.store=store;self.data=Path(data);self.guard=guard;self.connector=connector
-        if not store.state('sql','configuration'):store.state('sql','configuration',{'enabled':False,'server':socket.gethostname(),'database':PREFIX+'DEV','driver':'ODBC Driver 18 for SQL Server','trust_local_certificate':False,'guard_path':str(guard) if guard else '', 'sync_enabled':False})
+        prior=store.state('sql','connection')
+        if prior and prior.get('state')=='CONNECTED':store.state('sql','connection',dict(prior,state='DISCONNECTED',note='Previous query retained. Test the connection after restart to verify current availability.'))
+        if not store.state('sql','configuration'):store.state('sql','configuration',{'enabled':False,'server':'lpc:'+socket.gethostname(),'database':'master','driver':'ODBC Driver 18 for SQL Server','trust_local_certificate':False,'guard_path':str(guard) if guard else '', 'sync_enabled':False})
         sync=store.state('sql','sync')
         if sync and sync.get('state')=='RUNNING':sync.update(state='INTERRUPTED',error='SQL transaction outcome must be reconciled using original identities; repeat this bounded page safely');store.state('sql','sync',sync)
     def status(self):
-        c=self.store.state('sql','configuration');g=guard_state(self.guard or c.get('guard_path'));last=self.store.state('sql','connection') or {};return {'state':'BLOCKED' if not g['allowed'] else last.get('state','DISCONNECTED'),'status':'BLOCKED' if not g['allowed'] else last.get('state','DISCONNECTED'),'guard':g,'configuration':c,'discovery':self.store.state('sql','discovery'),'connection':last,'sync':self.store.state('sql','sync') or {'state':'DISABLED'},'authentication':'Windows integrated authentication','backups':self.store.state('sql','backups') or {'status':'NOT_RUN'}}
+        c=self.store.state('sql','configuration');g=guard_state(self.guard or c.get('guard_path'));last=self.store.state('sql','connection') or {};state='BLOCKED' if not g['allowed'] else 'DISCONNECTED' if not c['enabled'] else last.get('state','DISCONNECTED');return {'state':state,'status':state,'guard':g,'configuration':c,'discovery':self.store.state('sql','discovery'),'connection':last,'query_permissions':'READ_ONLY' if g['allowed'] else 'BLOCKED','write_operations':'ALLOWED_OWNED_ONLY' if g['writes_allowed'] else 'BLOCKED','last_query':self.store.state('sql','last_query'),'sync':self.store.state('sql','sync') or {'state':'DISABLED'},'authentication':'Windows integrated authentication','backups':self.store.state('sql','backups') or {'status':'NOT_RUN'}}
     def discover(self):
         d=discovery();self.store.state('sql','discovery',d);return d
     def configure(self,b):
@@ -75,12 +78,19 @@ class SqlControl:
         db=database or c['database'];ident(db)
         try:
             conn=pyodbc.connect('DRIVER={'+c['driver']+'};SERVER='+c['server']+';DATABASE='+db+';Trusted_Connection=yes;Encrypt=yes;TrustServerCertificate='+('yes' if c['trust_local_certificate'] else 'no')+';',timeout=5,autocommit=False);conn.timeout=10;return conn
-        except pyodbc.Error:raise ValueError('SQL connection failed. Verify integrated-login permission, the selected instance and its trusted TLS certificate. Server settings were not changed.') from None
+        except pyodbc.Error as e:
+            code=str(e.args[0])[:5];detail=str(e).lower()
+            reason='The local SQL certificate is not trusted. For a verified local instance, explicitly select Trust this local instance certificate.' if 'certificate' in detail else 'Windows authentication or database access was denied.' if code in ('28000','42000') else 'Verify the local instance, installed driver and connection timeout.'
+            raise ValueError('SQL connection failed (SQLSTATE '+code+'). '+reason+' Server settings were not changed.') from None
     def test(self):
         try:
             with closing(self.connect('master')) as c:
-                row=c.cursor().execute("SELECT CONVERT(nvarchar(128),SERVERPROPERTY('ServerName')),CONVERT(nvarchar(80),SERVERPROPERTY('ProductVersion')),CONVERT(nvarchar(128),SERVERPROPERTY('Edition'))").fetchone();dbs=[r[0] for r in c.cursor().execute('SELECT name FROM sys.databases WHERE HAS_DBACCESS(name)=1 ORDER BY name')];result={'state':'CONNECTED','checked_at':now(),'server':row[0],'product_version':row[1],'edition':row[2],'databases':dbs,'verified_by':'REAL_SQL_QUERY'};self.store.state('sql','connection',result);return result
-        except Exception as e:self.store.state('sql','connection',{'state':'BLOCKED' if isinstance(e,Blocked) else 'DISCONNECTED','checked_at':now(),'error':str(e)});raise
+                row=c.cursor().execute("SELECT CONVERT(nvarchar(128),SERVERPROPERTY('ServerName')),CONVERT(nvarchar(80),SERVERPROPERTY('ProductVersion')),CONVERT(nvarchar(128),SERVERPROPERTY('Edition'))").fetchone()
+                version=c.cursor().execute('SELECT @@VERSION AS SQLServerVersion').fetchone()[0]
+                identity=c.cursor().execute('SELECT DB_NAME() AS CurrentDatabase,SUSER_SNAME() AS LoginName,ORIGINAL_LOGIN() AS OriginalLogin').fetchone()
+                dbs=[r[0] for r in c.cursor().execute('SELECT name FROM sys.databases WHERE HAS_DBACCESS(name)=1 ORDER BY name')]
+                result={'state':'CONNECTED','checked_at':now(),'last_successful_query':now(),'server':row[0],'product_version':row[1],'edition':row[2],'version':version,'current_database':identity[0],'login_name':identity[1],'original_login':identity[2],'databases':dbs,'verified_by':'REAL_SQL_QUERY','query_permissions':'READ_ONLY'};self.store.state('sql','connection',result);return result
+        except Exception as e:self.store.state('sql','connection',{'state':'BLOCKED' if isinstance(e,Blocked) else 'FAILED','checked_at':now(),'error':self.sql_error(e)});raise
     def inventory(self):
         with closing(self.connect()) as c:
             tables=[{'schema':r[0],'table':r[1],'sports_candidate':bool(re.search('football|sport|fixture|match|odds|team|competition',r[1],re.I)) or r[0]=='dh006'} for r in c.cursor().execute('SELECT s.name,t.name FROM sys.tables t JOIN sys.schemas s ON s.schema_id=t.schema_id ORDER BY s.name,t.name')]

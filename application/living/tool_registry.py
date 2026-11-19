@@ -16,6 +16,11 @@ DEFINITIONS={
  'get_api_provider_status':('Actual saved football provider status without keys',{}),
  'get_sql_server_status':('Guarded SQL connection status, distinct from Windows service state',{}),
  'list_sql_databases':('Query accessible local SQL database names when the guard permits',{}),
+ 'list_sql_schemas':('Actual visible schema metadata in an accessible local SQL database',{'database':S}),
+ 'list_sql_tables':('Visible user tables and views; absence does not prove none exist in inaccessible databases',{'database':S,'schema':S}),
+ 'describe_sql_table':('Actual columns and indexes of an exact visible SQL table or view',{'database':S,'schema':S,'table':S}),
+ 'query_sports_data':('Bounded SELECT from an exact visible sports table; original timestamps only',{'database':S,'schema':S,'table':S,'limit':LIMIT}),
+ 'run_bounded_readonly_query':('Fixed read-only SQL templates; no arbitrary SQL, EXEC or batches',{'query_id':{'type':'string','enum':['server_identity','database_catalog','schemas','sports_records']},'database':S,'schema':S,'table':S,'limit':LIMIT}),
  'describe_sports_tables':('Query SQL sports table metadata when the guard permits',{}),
  'run_bounded_sql_select':('Fixed parameterized SQL templates; arbitrary SQL is never accepted',{'query_id':{'type':'string','enum':['owned_results','owned_odds','owned_counts']},'source':S,'limit':LIMIT}),
  'inspect_import_receipts':('Actual import receipts and identities',{'receipt_id':S,'limit':LIMIT}),
@@ -68,7 +73,11 @@ class Registry:
         if n=='get_api_provider_status':return [{k:p.get(k) for k in ('slot','name','state','effective_state','credential_status','last_success','last_checked','last_result','quota')} for p in rt.providers.list()]
         if n=='get_sql_server_status':
             s=rt.sql.status();return {k:s[k] for k in ('state','guard','connection','sync','authentication')}
-        if n=='list_sql_databases':return rt.sql.test()
+        if n=='list_sql_databases':return rt.sql.databases()
+        if n=='list_sql_schemas':return rt.sql.schemas(a.get('database'))
+        if n=='list_sql_tables':return rt.sql.tables(a.get('database'),a.get('schema',''))
+        if n=='describe_sql_table':return rt.sql.describe(a.get('database'),a.get('schema','dbo'),a.get('table',''))
+        if n in ('query_sports_data','run_bounded_readonly_query'):return rt.sql.readonly_query(a|({'query_id':'sports_records'} if n=='query_sports_data' else {}))
         if n=='describe_sports_tables':
             d=rt.sql.inventory();allowed={(t['schema'],t['table']) for t in d['tables'] if t['sports_candidate']};return {k:[r for r in v if (r['schema'],r['table']) in allowed][:100] if isinstance(v,list) else v for k,v in d.items()}
         if n=='run_bounded_sql_select':

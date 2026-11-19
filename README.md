@@ -1,6 +1,6 @@
 # DRAGONHYDRA SCRAPP INTELLIGENCE
 
-Mission 006 candidate **0.2.0-beta.3** adds a five-company AI conversation cockpit to the Windows intelligence application. This candidate is undergoing final local acceptance. **Public release is held:** OpenAI key authentication passed, but the authorized account has no API credits for the required genuine conversation test. Previous public beta.1 and beta.2 remain unchanged.
+Mission 006 candidate **0.2.0-beta.3** adds a five-company AI conversation cockpit to the Windows intelligence application. This local candidate passed packaged read-only SQL, cockpit and installer acceptance. **Public release is held:** OpenAI key authentication passed, but the authorized account has no API credits for the required genuine conversation test. Previous public beta.1 and beta.2 remain unchanged.
 
 The portable executable and per-user installer include their runtime. Open DragonhydraIntelligence.exe, select a dedicated candidate data directory and free port, then Start / open dashboard. A newer launcher refuses to silently reuse an older running service. Original user data, releases and source evidence are preserved. Credentials and private datasets are not included in packages.
 
@@ -14,11 +14,11 @@ The tool registry exposes bounded football and SQL queries, diagnostics and meas
 
 ## Verified limits
 
-OpenAI inference is BLOCKED by account credit exhaustion. Claude, xAI, Microsoft and Manus have mock protocol acceptance only until authorized credentials and account access are configured. Mock replies are not live cloud verification. SQL live connection, catalog and write acceptance are BLOCKED by the existing guard. Joomla live acceptance remains incomplete. Remote MCP execution and direct import of ChatGPT account plugins are not implemented. Manus and Copilot Studio use real task/channel lifecycles but do not have a verified local function-call interface in this beta; owner-selected tool receipts provide bounded context. CPU temperature and per-process network attribution are marked unavailable when no verified sensor exists.
+OpenAI inference is BLOCKED by account credit exhaustion. Claude, xAI, Microsoft and Manus have mock protocol acceptance only until authorized credentials and account access are configured. Mock replies are not live cloud verification. Owner-approved read-only SQL connection, version, identity and catalog queries passed live acceptance. Application-database access remains restricted by the Windows login; SQL writes remain blocked. Joomla live acceptance remains incomplete. Remote MCP execution and direct import of ChatGPT account plugins are not implemented. Manus and Copilot Studio use real task/channel lifecycles but do not have a verified local function-call interface in this beta; owner-selected tool receipts provide bounded context. CPU temperature and per-process network attribution are marked unavailable when no verified sensor exists.
 
 Conversation and credential security, bounded tools, cancellation, restart persistence, actual Edge interactions and installer lifecycle have local acceptance evidence. No purchase, subscription or automatic paid retry is performed. User-defined request limits are application-local, not account-wide billing caps. This is a beta candidate, not production certification.
 
-Read [AI cockpit operation and limits](docs/mission-006/AI-COCKPIT.md), [Mission 006 user guide](docs/mission-006/USER-GUIDE.md), [module contracts](docs/mission-006/ARCHITECTURE.md) and [football provider documentation](docs/mission-005/FOOTBALL-API-COST-COMPARISON.md).
+Read [read-only SQL operation](docs/mission-006/SQL-READONLY.md), [AI cockpit operation and limits](docs/mission-006/AI-COCKPIT.md), [Mission 006 user guide](docs/mission-006/USER-GUIDE.md), [module contracts](docs/mission-006/ARCHITECTURE.md) and [football provider documentation](docs/mission-005/FOOTBALL-API-COST-COMPARISON.md).
 
 ## Development
 

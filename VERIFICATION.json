@@ -1,21 +1,39 @@
 {
-  "version": "0.2.0-beta.1",
-  "status": "READY_WITH_DOCUMENTED_BETA_LIMITATIONS",
-  "behavioral_checks": 45,
-  "packaged_edge_checks": 27,
-  "source_recovery_checks": 7,
-  "independent_package_checks": 44,
-  "portable": "PASS",
-  "installer_standard_upgrade_uninstall": "PASS",
-  "installer_user_data_preservation": "PASS",
-  "original_evidence_preservation": "PASS",
-  "sql_integration": "BLOCKED",
-  "actual_joomla_integration": "BLOCKED",
-  "php_bridge_isolated": "PASS",
-  "real_ai_model": "NOT_RUN",
-  "live_external_feed": "NOT_RUN",
-  "native_buttons_exhaustive_automation": "NOT_RUN",
-  "code_signing": false,
-  "production_certified": false,
-  "tests_run_on": "Windows x64; Python runtime bundled; application started without development interpreter PATH"
+  "version": "0.2.0-beta.3",
+  "release": "LOCAL_CANDIDATE_PUBLICATION_HELD",
+  "unit_regression": {
+    "passed": 58,
+    "sql_http_security_retest": "PASS"
+  },
+  "sql_browser_portable": {
+    "checks": 28,
+    "status": "LIVE_PASS"
+  },
+  "sql_browser_installed": {
+    "checks": 28,
+    "status": "LIVE_PASS"
+  },
+  "windows_lifecycle": {
+    "checks": 37,
+    "status": "PASS"
+  },
+  "native_launcher": {
+    "checks": 8,
+    "status": "PASS",
+    "method": "Windows SendInput atomic pointer batch; no manual human click claim"
+  },
+  "cockpit_browser": {
+    "checks": 63,
+    "status": "MOCK_PASS",
+    "note": "Local UI/storage/tools real; external company responses from controlled mocks"
+  },
+  "prior_live_api_football": "Authentication and bounded historical fixtures passed; unaffected adapters retained",
+  "openai": {
+    "authentication": "LIVE_PASS",
+    "conversation": "BLOCKED_CREDIT_BALANCE_EXHAUSTED"
+  },
+  "sql_limits": "Application databases inaccessible to current Windows login; no visible user sports tables; writes blocked",
+  "other_cloud_providers": "MOCK_PASS_ONLY",
+  "joomla": "BLOCKED_LIVE_ACCEPTANCE",
+  "production_certification": false
 }

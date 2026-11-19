@@ -1,20 +1,16 @@
-[
-  {
-    "name": "DRAGONHYDRA-Intelligence-0.2.0-beta.1-portable-20261118T224618Z.zip",
-    "sha256": "f083ba8ec10e4291c77e01433a47ce1da1dbb843e35ed7983ace43b5c8813441",
-    "bytes": 34828400,
-    "acceptance": "PASS"
-  },
-  {
-    "name": "DRAGONHYDRA-Intelligence-Setup-0.2.0-beta.1-20261118T224618Z.exe",
-    "sha256": "424206296048298205801bce9c8501b9493feae281a51799c1018217f5f39f9d",
-    "bytes": 48167878,
-    "acceptance": "PASS"
-  },
-  {
-    "name": "mod_dragonhydra004-0.2.0-beta.1.zip",
-    "sha256": "65b75084894f3cdd7dccd909c6ede31c225f4f706bd437b6e4e14cb7244ee6fb",
-    "bytes": 2104,
-    "acceptance": "PARTIAL; PHP bridge passed; actual Joomla installation and communication BLOCKED"
-  }
-]
+{
+  "version": "0.2.0-beta.3",
+  "published": false,
+  "artifacts": [
+    {
+      "name": "DRAGONHYDRA-Intelligence-0.2.0-beta.3-portable-20261119T084107Z.zip",
+      "sha256": "5723e8ce04f5d1a0382b13cbcc663e2b85c9504bf784bac91a64365e85211c18",
+      "bytes": 49666355
+    },
+    {
+      "name": "DRAGONHYDRA-Intelligence-Setup-0.2.0-beta.3-20261119T084107Z.exe",
+      "sha256": "ce8bcc6a3e3dc11f313e87fa9123acd57a0e27739842c05ba01a9c6245004590",
+      "bytes": 62411711
+    }
+  ]
+}

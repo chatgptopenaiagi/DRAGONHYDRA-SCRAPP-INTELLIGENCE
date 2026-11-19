@@ -105,7 +105,7 @@ class Mission006(unittest.TestCase):
         from living.server import Server
         s=Server(('127.0.0.1',0),self.rt,'synthetic-local-admin-006');t=threading.Thread(target=s.serve_forever);t.start()
         try:
-            paths=['sql/'+x for x in ('configure','discover','test','inventory','provision','sync','backups')]+['cloud/'+x for x in ('configure','credential','credential/remove','test','preview','run','inspect','stop')]+['knowledge/configure','knowledge/refresh','tools/run','provider/status']
+            paths=['sql/'+x for x in ('configure','discover','test','inventory','provision','sync','backups','databases','schemas','tables','describe','query')]+['cloud/'+x for x in ('configure','credential','credential/remove','test','preview','run','inspect','stop')]+['knowledge/configure','knowledge/refresh','tools/run','provider/status']
             token,csrf=s.auth.exchange(s.auth.ticket())
             for path in paths:
                 for cookie,expected in [(None,401),(token,403)]:

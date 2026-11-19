@@ -1,0 +1,15 @@
+# SQL Server read-only integration
+
+SQL Server Control Center uses Windows integrated authentication against an explicitly configured local instance. A running Windows service does not establish a SQL connection. Test Connection executes `SELECT @@VERSION`, authenticated identity and accessible database queries. The application reports CONNECTED only after those queries succeed. After restart, a retained previous success is shown separately and a new connection test is required.
+
+Select the existing maintenance guard, enable SQL integration, and select a database accessible to your Windows login. The application cannot grant SQL privileges or release a maintenance guard. A separately approved `sql_read_only_allowed: true` permits reads while the original write restrictions remain in effect. Keep the guard backup and the approved rollback procedure outside release packages.
+
+For an independently verified local instance using a self-signed certificate, the explicit “Trust this verified local instance certificate” option applies to this connection only. It does not change SQL Server TLS settings or the Windows certificate store. Encryption stays enabled. Remote instances are not supported by this local adapter.
+
+Refresh Databases distinguishes catalog visibility from database access. View Schemas and Inspect Tables show only metadata visible to the Windows login, with a maximum of 100 objects per request. Select a schema to narrow the list. “Include visible system metadata objects” permits inspecting system views; this is not a claim that football tables exist. A table can be described by selecting its exact discovered name. Missing access is reported without attempting permission recovery.
+
+Run Bounded SELECT offers fixed version/identity, database catalog, schema and sports-record templates. No SQL text, multiple statements, EXEC or expressions are accepted from a user or model. Sports previews require an exact metadata match, SELECT permission and a sports-related object; system and unrelated records are excluded. Results have a 10-second query timeout, 100-row ceiling and 40 KB output limit. Supported sports values are represented as text up to 2,000 characters; credential/contact column names are excluded. A preview is not an exhaustive export or a total row count. Original provider times are never inferred.
+
+The same operations are available to explicitly selected AI tools: `get_sql_server_status`, `list_sql_databases`, `list_sql_schemas`, `list_sql_tables`, `describe_sql_table`, `query_sports_data`, and `run_bounded_readonly_query`. The authenticated dashboard and CSRF requirements apply. Tool requests produce local receipts and have no SQL write capability. A model still needs its own configured API access; local SQL queries work independently of cloud inference.
+
+Under read-only approval, database creation, schema changes, inserts, updates, deletes, synchronization, privilege recovery and service restarts remain blocked. SQLite is retained as an independent datastore. No SQL database or private research data is bundled in this distribution.
