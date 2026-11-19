@@ -23,6 +23,7 @@ for rule in ('tools/** -text','tests/** -text'):
 attributes.write_text(content)
 def git(*args):return subprocess.check_output(['git','-C',str(repo),*args],stderr=subprocess.PIPE)
 git('add','--','.gitattributes',*inputs,*extra)
+git('add','--renormalize','--',*inputs,*extra)
 git('-c','user.name=chatgptopenaiagi','-c','user.email=chatgptopenaiagi@users.noreply.github.com','commit','-m','Verify PostgreSQL beta.4 packages and correct visible version and database layout')
 commit=git('rev-parse','HEAD').decode().strip()
 assert all(hashlib.sha256(git('show',commit+':'+p.replace('\\','/'))).hexdigest()==h for p,h in inputs.items())
