@@ -1,7 +1,7 @@
 """Reuse the installed PyInstaller toolchain; all outputs belong to Mission 004."""
 import hashlib,json,shutil,subprocess,sys,time,zipfile,importlib.metadata,argparse
 from pathlib import Path
-parser=argparse.ArgumentParser();parser.add_argument('--mission',default='005',choices=['004','005']);parser.add_argument('--version',default='0.2.0-beta.2');parser.add_argument('--reuse-build',type=Path,help='Reuse verified frozen Python only when all executable source inputs are unchanged');args=parser.parse_args();VERSION=args.version
+parser=argparse.ArgumentParser();parser.add_argument('--mission',default='005',choices=['004','005','006']);parser.add_argument('--version',default='0.2.0-beta.2');parser.add_argument('--reuse-build',type=Path,help='Reuse verified frozen Python only when all executable source inputs are unchanged');args=parser.parse_args();VERSION=args.version
 ROOT=Path(__file__).resolve().parents[1];OUT=ROOT/('evidence/mission-'+args.mission);DOCS='docs/mission-'+args.mission;OUT.mkdir(parents=True,exist_ok=True);(ROOT/'dist').mkdir(exist_ok=True);
 tag=time.strftime('%Y%m%dT%H%M%SZ',time.gmtime());run=OUT/('build-'+tag);run.mkdir();dist=run/'portable';work=run/'work';spec=run/'spec';spec.mkdir()
 def sha(p):
@@ -9,7 +9,7 @@ def sha(p):
 assert VERSION in (ROOT/'application/living/__init__.py').read_text(), 'Source and requested package version disagree'
 inputs={str(p.relative_to(ROOT)):sha(p) for folder in ('application/living','application/dragonhydra','application/intelligence','installer',DOCS) for p in (ROOT/folder).rglob('*') if p.is_file() and '__pycache__' not in p.parts}
 (run/'source-inputs.json').write_text(json.dumps(inputs,indent=2))
-command=[sys.executable,'-m','PyInstaller','--noconfirm','--onedir','--windowed','--name','DragonhydraIntelligence','--distpath',str(dist),'--workpath',str(work),'--specpath',str(spec),'--paths',str(ROOT/'application'),'--hidden-import','pypdf','--hidden-import','tkinter','--hidden-import','tkinter.ttk','--hidden-import','tkinter.messagebox','--hidden-import','tkinter.filedialog','--add-data',str(ROOT/'application/living/web')+';living/web',str(ROOT/'application/living_launch.py')]
+command=[sys.executable,'-m','PyInstaller','--noconfirm','--onedir','--windowed','--name','DragonhydraIntelligence','--distpath',str(dist),'--workpath',str(work),'--specpath',str(spec),'--paths',str(ROOT/'application'),'--hidden-import','psutil','--hidden-import','websocket','--hidden-import','pyodbc','--hidden-import','pypdf','--hidden-import','tkinter','--hidden-import','tkinter.ttk','--hidden-import','tkinter.messagebox','--hidden-import','tkinter.filedialog','--add-data',str(ROOT/'application/living/web')+';living/web',str(ROOT/'application/living_launch.py')]
 if args.reuse_build:
     previous=json.loads((args.reuse_build/'source-inputs.json').read_text())
     assert all(previous.get(p)==h for p,h in inputs.items() if not p.replace('\\','/').startswith(('application/living/web/',DOCS+'/'))),'Executable inputs changed; full recompilation required'
@@ -24,7 +24,7 @@ bundle=dist/'DragonhydraIntelligence';shutil.copytree(ROOT/DOCS,bundle/'Document
 licenses=bundle/'ThirdParty';licenses.mkdir(exist_ok=True)
 python_license=Path(sys.base_prefix)/'LICENSE.txt'
 if python_license.exists():shutil.copy2(python_license,licenses/'Python-LICENSE.txt')
-for distribution in ('pypdf','pyinstaller'):
+for distribution in ('pypdf','pyinstaller','psutil','websocket-client'):
     d=importlib.metadata.distribution(distribution)
     for f in d.files or []:
         if any(word in str(f).lower() for word in ('license','copying')) and '..' not in f.parts:

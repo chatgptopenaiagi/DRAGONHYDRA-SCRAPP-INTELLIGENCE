@@ -23,12 +23,16 @@ def protect(raw,entropy,decrypt=False):
         ctypes.memset(buf,0,len(raw));ctypes.memset(ebuf,0,len(entropy))
 
 class Vault:
-    def __init__(self,data):
-        self.data=Path(data).resolve();local_secret(self.data);self.folder=self.data/'private/providers';self.folder.mkdir(exist_ok=True);self.lock=threading.RLock()
+    def __init__(self,data,namespace='providers'):
+        if namespace not in ('providers','cloud'):raise ValueError('Unknown credential namespace')
+        self.namespace=namespace;self.data=Path(data).resolve();local_secret(self.data);self.folder=self.data/'private'/namespace;self.folder.mkdir(exist_ok=True);self.lock=threading.RLock()
     def path(self,slot):
-        if str(slot) not in ('1','2','3','4','5','6'):raise ValueError('Unknown provider slot')
+        allowed=('1','2','3','4','5','6') if self.namespace=='providers' else ('openai','anthropic','xai','foundry','azure-openai','copilot-studio','manus','local')
+        if str(slot) not in allowed:raise ValueError('Unknown provider slot')
         return self.folder/(str(slot)+'.dpapi')
-    def entropy(self,slot,binding):return fingerprint(['dh.credentials/1',str(self.data),str(slot),binding]).encode()
+    def entropy(self,slot,binding):
+        values=['dh.credentials/1',str(self.data),str(slot),binding] if self.namespace=='providers' else ['dh.credentials/2',str(self.data),self.namespace,str(slot),binding]
+        return fingerprint(values).encode()
     def save(self,slot,binding,value):
         if not isinstance(value,str) or not 8<=len(value)<=4096 or any(ord(c)<33 or ord(c)>126 for c in value):raise ValueError('API key must contain 8–4096 printable non-space ASCII characters')
         with self.lock:

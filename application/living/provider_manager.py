@@ -81,7 +81,7 @@ class ProviderManager:
         if c['budget']['retry_at']>time.time():raise Blocked('Provider requests are paused until the displayed retry time.')
     def submit(self,slot,operation='collect'):
         slot=str(slot);a=self.adapter(slot)
-        if operation not in ('test','collect'):raise ValueError('Unknown provider operation')
+        if operation not in ('test','collect','status') or operation=='status' and slot!='2':raise ValueError('Unknown provider operation')
         with self.lock:
             c=self.store.state('provider',slot);self.guard(slot,c)
             if operation=='collect' and c['category'] not in ('competitions','teams'):
@@ -154,6 +154,10 @@ class ProviderManager:
                     except (ValueError,UnicodeError):raise ProviderError('Provider returned malformed JSON; no observations imported') from None
                     data=provider_transport.redact(data,secrets);retrieved=received_at
                 parsed=a.parse(data,category,c)
+                if category=='account_status':
+                    account=data['response'];c['reported_account']={'checked_at':received_at,'requests_used':account['requests']['current'],'daily_allowance':account['requests']['limit_day'],'remaining':max(0,account['requests']['limit_day']-account['requests']['current']),'plan':account.get('subscription',{}).get('plan'),'active':True}
+                    # Preserve quota and response fingerprint, never account names or email addresses.
+                    data={'get':'status','errors':[],'response':{'requests':account['requests'],'subscription':{k:account.get('subscription',{}).get(k) for k in ('plan','active','end')}}}
                 if len(records)+len(parsed)>100000:raise ProviderError('Collection exceeds 100000 observations; narrow the selection')
                 records.extend(parsed);pages.append({'sha256':raw_sha,'response_status':http_status,'retrieved_at':retrieved,'checked_at':received_at,'safe_parameters':safe_query,'path':path,'records':len(parsed)})
                 folder=self.data/'provider-responses';folder.mkdir(exist_ok=True);evidence_path=folder/(fingerprint(data)+'.json')
@@ -180,6 +184,7 @@ class ProviderManager:
                 if current['revision']!=revision:raise Cancelled('Provider configuration changed before receipt commit')
                 result=self.store.ingest(normalized if operation=='collect' else [],receipt,cancelled)
                 current.update(state='CONNECTED',last_checked=at,last_success=at,http_status=http_status,error=None,budget=c['budget'],last_receipt=result)
+                if c.get('reported_account'):current['reported_account']=c['reported_account']
                 if operation=='collect':current['last_import']=at
                 if category=='competitions':current['competitions']=[{'id':r['metadata']['competition'],'name':r['metadata']['name'],'seasons':r['metadata'].get('seasons',[])} for r in records]
                 self.store.state('provider',slot,current)

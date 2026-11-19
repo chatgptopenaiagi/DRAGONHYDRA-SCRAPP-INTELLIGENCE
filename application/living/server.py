@@ -43,7 +43,7 @@ class Handler(BaseHTTPRequestHandler):
             if self.headers.get('Sec-Fetch-Site') in ('cross-site','same-site'):return self.send(403,{'error':'Cross-site requests are rejected'})
             if len(self.path)>8000:return self.send(414,{'error':'URL too long'})
             p=urlsplit(self.path);path=p.path;query={k:v[0] for k,v in parse_qs(p.query).items()}
-            if not post and path in ('/','/app.js','/sources.js','/app.css'):
+            if not post and path in ('/','/app.js','/sources.js','/workstation.js','/cockpit.js','/cockpit.css','/app.css'):
                 name='index.html' if path=='/' else path[1:]
                 return self.send(200,(Path(__file__).with_name('web')/name).read_bytes(),'text/html' if path=='/' else 'text/css' if path.endswith('.css') else 'text/javascript')
             if not post and path=='/auth/identity':
@@ -62,6 +62,11 @@ class Handler(BaseHTTPRequestHandler):
             if post and path=='/auth/exchange':
                 if origin!=server.origin:return self.send(403,{'error':'Same-origin browser exchange required'})
                 token,csrf=server.auth.exchange(str(body.get('ticket','')));return self.send(200,{'csrf':csrf,'expires_in':3600},cookie=token)
+            if path=='/api/mcp':
+                if not rt.extensions.authorized(self.headers.get('X-DH-MCP','')):return self.send(401,{'error':'A configured, separate read-only MCP credential is required'})
+                if not post:return self.send(405,{'error':'This stateless MCP endpoint supports POST JSON responses; SSE is not enabled'})
+                if len(json.dumps(body))>32000:return self.send(413,{'error':'MCP request exceeds 32 KB'})
+                result=rt.extensions.call(body);return self.send(202 if result is None else 200,result if result is not None else '',mime='text/plain' if result is None else 'application/json')
             admin=server.auth.admin(self.headers.get('X-DH-Local',''))
             bridge=bool(server.bridge_secret) and hmac.compare_digest(self.headers.get('X-DH-Bridge',''),server.bridge_secret)
             cookies=SimpleCookie();cookies.load(self.headers.get('Cookie',''));token=cookies.get(server.cookie);token=token.value if token else ''
@@ -70,6 +75,37 @@ class Handler(BaseHTTPRequestHandler):
             if bridge and not admin and not session and (post or path not in ('/api/status','/api/observations')):return self.send(403,{'error':'Joomla bridge credential is read-only and endpoint-scoped'})
             if post and not admin and (origin!=server.origin or not hmac.compare_digest(self.headers.get('X-DH-CSRF',''),session['csrf'])):return self.send(403,{'error':'Same-origin request and CSRF token required'})
             if post:
+                if path=='/api/chat/create':return self.send(200,rt.conversations.create(body))
+                if path=='/api/chat/send':return self.send(202,rt.conversations.send(body))
+                if path=='/api/chat/cancel':return self.send(200,rt.conversations.cancel(body['turn_id']))
+                if path=='/api/chat/inspect':return self.send(200,rt.conversations.inspect_remote(body['session_id']))
+                if path=='/api/chat/roundtable':return self.send(202,rt.conversations.roundtable(body))
+                if path=='/api/registry/run':return self.send(200,rt.registry.run(body['name'],body.get('arguments',{})))
+                if path=='/api/registry/enable':return self.send(200,rt.registry.enable(body['name'],body['enabled']))
+                if path=='/api/registry/action':return self.send(200,rt.registry.action(body['id'],body.get('approve') is True))
+                if path=='/api/engineering/configure':return self.send(200,rt.engineering.configure(body))
+                if path=='/api/engineering/connect':return self.send(200,rt.engineering.connect())
+                if path=='/api/engineering/submit':return self.send(202,rt.engineering.submit(body.get('instruction'),body.get('area','general')))
+                if path=='/api/extensions/configure':return self.send(200,rt.extensions.configure(body['enabled'],server.origin))
+                if path=='/api/sql/configure':return self.send(200,rt.sql.configure(body))
+                if path=='/api/sql/discover':return self.send(200,rt.sql.discover())
+                if path=='/api/sql/test':return self.send(200,rt.sql.test())
+                if path=='/api/sql/inventory':return self.send(200,rt.sql.inventory())
+                if path=='/api/sql/provision':return self.send(200,rt.sql.provision(body.get('confirmation')))
+                if path=='/api/sql/sync':return self.send(200,rt.sql.sync(body.get('source'),body.get('limit',1000),body.get('offset',0)))
+                if path=='/api/sql/backups':return self.send(200,rt.sql.backup_info())
+                if path=='/api/knowledge/configure':return self.send(200,rt.knowledge.configure(body))
+                if path=='/api/knowledge/refresh':return self.send(200,rt.knowledge.refresh(body['id']))
+                if path=='/api/tools/run':return self.send(200,rt.evidence_tools.run(body['name'],body.get('arguments',{})))
+                if path=='/api/cloud/configure':return self.send(200,rt.cloud.configure(body))
+                if path=='/api/cloud/credential':return self.send(200,rt.cloud.credential(body))
+                if path=='/api/cloud/credential/remove':return self.send(200,rt.cloud.credential(body,True))
+                if path=='/api/cloud/test':return self.send(200,rt.cloud.test(body['id']))
+                if path=='/api/cloud/preview':return self.send(200,rt.cloud.preview(body))
+                if path=='/api/cloud/run':return self.send(200,rt.cloud.run(body))
+                if path=='/api/cloud/inspect':return self.send(200,rt.cloud.inspect(body['receipt_id']))
+                if path=='/api/cloud/stop':return self.send(200,rt.cloud.inspect(body['receipt_id'],True))
+                if path=='/api/provider/status':return self.send(202,rt.providers.submit(body['slot'],'status'))
                 if path=='/api/session-ticket':
                     if not admin:return self.send(403,{'error':'Only the local launcher can issue browser tickets'})
                     return self.send(200,{'ticket':server.auth.ticket(),'expires_in':45})
@@ -114,6 +150,19 @@ class Handler(BaseHTTPRequestHandler):
                 if path=='/api/shutdown':
                     self.send(200,{'status':'STOPPING'});threading.Thread(target=server.shutdown,daemon=True).start();return
             else:
+                if path=='/api/chat/sessions':return self.send(200,rt.conversations.list(query.get('search','')))
+                if path=='/api/chat/session':return self.send(200,rt.conversations.detail(query.get('id')))
+                if path=='/api/chat/export':return self.send(200,rt.conversations.detail(query.get('id')),download='dragonhydra-conversation.json')
+                if path=='/api/registry':return self.send(200,{'tools':rt.registry.contracts(),'actions':rt.store.states('owner-action')[-50:],'receipts':sorted(rt.store.states('tool-receipt'),key=lambda r:r['at'],reverse=True)[:50]})
+                if path=='/api/engineering':return self.send(200,rt.engineering.status())
+                if path=='/api/hardware':return self.send(200,rt.hardware.sample())
+                if path=='/api/extensions':return self.send(200,rt.extensions.status())
+                if path=='/api/sql':return self.send(200,rt.sql.status())
+                if path=='/api/knowledge':return self.send(200,rt.knowledge.list(query.get('search','')))
+                if path=='/api/knowledge/evidence':return self.send(200,rt.knowledge.query(query.get('search',''),[query['id']] if query.get('id') else None))
+                if path=='/api/tools':return self.send(200,rt.evidence_tools.contracts())
+                if path=='/api/cloud':return self.send(200,rt.cloud.list())
+                if path=='/api/cloud/receipts':return self.send(200,sorted(rt.store.states('cloud-receipt'),key=lambda r:r['at'],reverse=True)[:100])
                 if path=='/api/session':return self.send(200,{'csrf':session['csrf'] if session else None,'authenticated':True})
                 if path=='/api/status':return self.send(200,rt.status())
                 if path=='/api/tasks':return self.send(200,rt.store.tasks())

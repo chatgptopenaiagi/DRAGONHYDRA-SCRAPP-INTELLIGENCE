@@ -175,6 +175,7 @@ class Acquisition:
         def run():
             while not self.stop.wait(.2):
                 if self.providers:self.providers.schedule()
+                if getattr(self,'knowledge',None):self.knowledge.schedule()
                 for s in self.store.sources():
                     if s.get('enabled') and s['adapter'] not in ('upload','provider') and time.monotonic()>=self.due.get(s['id'],0):
                         self.due[s['id']]=time.monotonic()+int(s['interval'])

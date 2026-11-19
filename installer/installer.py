@@ -2,7 +2,7 @@
 import argparse,hashlib,json,os,shutil,subprocess,sys,tempfile,time,zipfile
 from pathlib import Path
 
-OWNER='DRAGONHYDRA-LivingIntelligence';VERSION='0.2.0-beta.2';KEY=r'Software\Microsoft\Windows\CurrentVersion\Uninstall\DRAGONHYDRA-LivingIntelligence';ISOLATED=False;SHORTCUT='DRAGONHYDRA Intelligence.lnk'
+OWNER='DRAGONHYDRA-LivingIntelligence';VERSION='0.2.0-beta.3';KEY=r'Software\Microsoft\Windows\CurrentVersion\Uninstall\DRAGONHYDRA-LivingIntelligence';ISOLATED=False;SHORTCUT='DRAGONHYDRA Intelligence.lnk'
 
 def registration_scope(target,isolated=False):
     global KEY,ISOLATED,SHORTCUT

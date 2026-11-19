@@ -3,7 +3,7 @@ import csv,hmac,io,os,secrets,subprocess,threading,time
 from pathlib import Path
 
 def local_secret(data,filename='launcher.key'):
-    if filename not in ('launcher.key','bridge.key'):raise ValueError('Unknown credential purpose')
+    if filename not in ('launcher.key','bridge.key','mcp.key'):raise ValueError('Unknown credential purpose')
     folder=Path(data)/'private';folder.mkdir(exist_ok=True)
     if os.name=='nt':
         sid=list(csv.reader(io.StringIO(subprocess.check_output(['whoami','/user','/fo','csv','/nh'],text=True,creationflags=subprocess.CREATE_NO_WINDOW))))[0][1]

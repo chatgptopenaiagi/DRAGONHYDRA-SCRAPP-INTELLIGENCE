@@ -9,9 +9,12 @@ class Browser:
         self.log=(self.folder/'edge.log').open('w')
         self.process=subprocess.Popen([r'C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe','--headless=new','--disable-gpu','--no-first-run','--no-default-browser-check','--remote-debugging-port=0','--remote-allow-origins=http://127.0.0.1','--user-data-dir='+str(self.folder/'profile'),'about:blank'],stdout=self.log,stderr=self.log,creationflags=subprocess.CREATE_NO_WINDOW)
         active=self.folder/'profile/DevToolsActivePort';deadline=time.monotonic()+25
-        while not active.exists() and self.process.poll() is None and time.monotonic()<deadline:time.sleep(.1)
-        if not active.exists():raise RuntimeError('Edge did not expose its isolated DevTools endpoint')
-        self.port=int(active.read_text().splitlines()[0]);self.serial=0;self.errors=[]
+        port=None
+        while self.process.poll() is None and time.monotonic()<deadline:
+            try:port=int(active.read_text().splitlines()[0]);break
+            except (OSError,ValueError,IndexError):time.sleep(.1)
+        if port is None:raise RuntimeError('Edge did not expose its isolated DevTools endpoint')
+        self.port=port;self.serial=0;self.errors=[];self.interactions=[]
         pages=json.load(urllib.request.urlopen(f'http://127.0.0.1:{self.port}/json/list'))
         self.ws=websocket.create_connection(next(p['webSocketDebuggerUrl'] for p in pages if p['type']=='page'),origin='http://127.0.0.1',timeout=30)
         self.call('Page.enable');self.call('Runtime.enable');self.call('Emulation.setDeviceMetricsOverride',width=1440,height=1000,deviceScaleFactor=1,mobile=False)
@@ -34,8 +37,8 @@ class Browser:
             time.sleep(.15)
         raise AssertionError('Browser condition timed out: '+expression)
     def goto(self,url):self.call('Page.navigate',url=url)
-    def click(self,selector):self.js('document.querySelector('+json.dumps(selector)+').click()')
-    def fill(self,selector,value):self.js('(()=>{let e=document.querySelector('+json.dumps(selector)+');e.value='+json.dumps(value)+';e.dispatchEvent(new Event("input",{bubbles:true}));e.dispatchEvent(new Event("change",{bubbles:true}))})()')
+    def click(self,selector):self.interactions.append({'selector':selector,'method':'DOM click'});self.js('document.querySelector('+json.dumps(selector)+').click()')
+    def fill(self,selector,value):self.interactions.append({'selector':selector,'method':'input/change event; value deliberately omitted'});self.js('(()=>{let e=document.querySelector('+json.dumps(selector)+');e.value='+json.dumps(value)+';e.dispatchEvent(new Event("input",{bubbles:true}));e.dispatchEvent(new Event("change",{bubbles:true}))})()')
     def upload(self,selector,file):
         root=self.call('DOM.getDocument')['root']['nodeId'];node=self.call('DOM.querySelector',nodeId=root,selector=selector)['nodeId'];self.call('DOM.setFileInputFiles',nodeId=node,files=[str(Path(file).resolve())])
     def screenshot(self,name):

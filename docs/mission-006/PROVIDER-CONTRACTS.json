@@ -1,0 +1,99 @@
+{
+  "verified_at": "2026-11-19T07:18:56.924552Z",
+  "providers": [
+    {
+      "id": "openai",
+      "name": "OpenAI Responses",
+      "default_origin": "https://api.openai.com",
+      "official_documentation": "https://developers.openai.com/api/reference/responses/overview",
+      "protocol": "responses",
+      "live_acceptance": "NOT_RUN",
+      "credential_storage": "Windows user-scoped DPAPI",
+      "default_enabled": false,
+      "current_prices": "Not verified; no monetary cost estimate advertised"
+    },
+    {
+      "id": "anthropic",
+      "name": "Anthropic Claude",
+      "default_origin": "https://api.anthropic.com",
+      "official_documentation": "https://platform.claude.com/docs/en/build-with-claude/working-with-messages",
+      "protocol": "messages",
+      "live_acceptance": "NOT_RUN",
+      "credential_storage": "Windows user-scoped DPAPI",
+      "default_enabled": false,
+      "current_prices": "Not verified; no monetary cost estimate advertised"
+    },
+    {
+      "id": "xai",
+      "name": "xAI Grok",
+      "default_origin": "https://api.x.ai",
+      "official_documentation": "https://docs.x.ai/developers/quickstart",
+      "protocol": "responses",
+      "live_acceptance": "NOT_RUN",
+      "credential_storage": "Windows user-scoped DPAPI",
+      "default_enabled": false,
+      "current_prices": "Not verified; no monetary cost estimate advertised"
+    },
+    {
+      "id": "foundry",
+      "name": "Microsoft Foundry Model Inference",
+      "default_origin": "User-configured resource origin",
+      "official_documentation": "https://learn.microsoft.com/en-us/rest/api/microsoft-foundry/modelinference/",
+      "protocol": "chat",
+      "live_acceptance": "NOT_RUN",
+      "credential_storage": "Windows user-scoped DPAPI",
+      "default_enabled": false,
+      "current_prices": "Not verified; no monetary cost estimate advertised"
+    },
+    {
+      "id": "azure-openai",
+      "name": "Azure OpenAI deployment",
+      "default_origin": "User-configured resource origin",
+      "official_documentation": "https://learn.microsoft.com/en-us/azure/ai-foundry/openai/how-to/responses",
+      "protocol": "responses",
+      "live_acceptance": "NOT_RUN",
+      "credential_storage": "Windows user-scoped DPAPI",
+      "default_enabled": false,
+      "current_prices": "Not verified; no monetary cost estimate advertised"
+    },
+    {
+      "id": "manus",
+      "name": "Manus asynchronous tasks",
+      "default_origin": "https://api.manus.ai",
+      "official_documentation": "https://open.manus.im/docs/v2/introduction",
+      "protocol": "task",
+      "live_acceptance": "NOT_RUN",
+      "credential_storage": "Windows user-scoped DPAPI",
+      "default_enabled": false,
+      "current_prices": "Not verified; no monetary cost estimate advertised"
+    },
+    {
+      "id": "local",
+      "name": "Local compatible Qwen / llama.cpp",
+      "default_origin": "User-configured resource origin",
+      "official_documentation": "https://github.com/ggml-org/llama.cpp/tree/master/examples/server",
+      "protocol": "chat",
+      "live_acceptance": "NOT_RUN",
+      "credential_storage": "Windows user-scoped DPAPI",
+      "default_enabled": false,
+      "current_prices": "Not verified; no monetary cost estimate advertised"
+    },
+    {
+      "id": "copilot-studio",
+      "name": "Copilot Studio Direct Line channel",
+      "default_origin": "https://directline.botframework.com",
+      "official_documentation": "https://learn.microsoft.com/en-us/microsoft-copilot-studio/guidance/channels",
+      "protocol": "channel",
+      "live_acceptance": "NOT_RUN",
+      "credential_storage": "Windows user-scoped DPAPI",
+      "default_enabled": false,
+      "current_prices": "Not verified; no monetary cost estimate advertised"
+    }
+  ],
+  "notes": {
+    "foundry": "Official Model Inference documentation labels 2024-05-01-preview deprecated. Adapter implements documented /info and /chat/completions, with /models prefix on services.ai.azure.com. Azure OpenAI Responses is a separate supported configuration.",
+    "manus": "API v2 at api.manus.ai, x-manus-api-key; asynchronous task.create, listMessages and stop. Account PII from user.me is discarded.",
+    "copilot": "Direct Line channel for a configured Copilot Studio agent, not consumer Copilot access.",
+    "openai": "Official Responses request with store=false; dynamic model discovery; no request retry."
+  }
+}

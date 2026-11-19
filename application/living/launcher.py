@@ -41,6 +41,8 @@ def ensure(data,port=18977,mode='offline',guard=None):
     data=Path(data).resolve()
     existing=running(data)
     if existing:
+        from . import VERSION
+        if existing.get('version')!=VERSION:raise ValueError('This data directory is already served by DRAGONHYDRA '+str(existing.get('version','unknown'))+'. This launcher is '+VERSION+'. Keep that instance for rollback and select a separate data directory and free port, or stop it deliberately before a verified upgrade. No running service was changed.')
         if existing['mode']!=mode:request(data,'/api/mode',{'mode':mode});existing=running(data)
         return existing
     data.mkdir(parents=True,exist_ok=True)
@@ -110,7 +112,7 @@ def serve(args):
 def native(args):
     import tkinter as tk
     from tkinter import ttk,messagebox,filedialog
-    root=tk.Tk();root.title('DRAGONHYDRA Intelligence · 0.2.0 beta.2');root.geometry('700x650');root.minsize(660,600)
+    root=tk.Tk();root.title('DRAGONHYDRA Intelligence · 0.2.0 beta.3');root.geometry('700x650');root.minsize(660,600)
     style=ttk.Style();style.theme_use('clam')
     frame=ttk.Frame(root,padding=24);frame.pack(fill='both',expand=True)
     ttk.Label(frame,text='DRAGONHYDRA',font=('Segoe UI',24,'bold')).pack(anchor='w')
