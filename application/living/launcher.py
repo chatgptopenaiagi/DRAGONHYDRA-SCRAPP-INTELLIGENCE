@@ -112,7 +112,8 @@ def serve(args):
 def native(args):
     import tkinter as tk
     from tkinter import ttk,messagebox,filedialog
-    root=tk.Tk();root.title('DRAGONHYDRA Intelligence · 0.2.0 beta.3');root.geometry('700x650');root.minsize(660,600)
+    from . import VERSION
+    root=tk.Tk();root.title('DRAGONHYDRA Intelligence · '+VERSION);root.geometry('700x650');root.minsize(660,600)
     style=ttk.Style();style.theme_use('clam')
     frame=ttk.Frame(root,padding=24);frame.pack(fill='both',expand=True)
     ttk.Label(frame,text='DRAGONHYDRA',font=('Segoe UI',24,'bold')).pack(anchor='w')

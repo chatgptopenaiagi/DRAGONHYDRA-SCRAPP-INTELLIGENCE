@@ -2,3 +2,6 @@
 
 /* Mission 005 acquisition controls */
 #csv-wizard{border-bottom:1px solid #345;padding-bottom:32px;margin-bottom:32px}.mapping-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px}.provider-card{border:1px solid #345;border-radius:12px;padding:22px;margin:20px 0}.provider-card>p{white-space:pre-line}.provider-card pre,#csv-result{white-space:pre-wrap;overflow-wrap:anywhere;max-height:380px;overflow:auto}.table-wrap{overflow:auto;max-height:370px}button:disabled{opacity:.45;cursor:not-allowed}#csv-file-info{overflow-wrap:anywhere}.provider-card input[type=password]{font-family:monospace}.provider-card a{color:#84d8d0}
+
+/* Database identities must remain readable at every supported viewport. */
+#pg-health{grid-template-columns:repeat(auto-fit,minmax(min(240px,100%),1fr))}#pg-health .card{min-width:0}#pg-health strong{font-size:16px;overflow-wrap:anywhere}
