@@ -17,8 +17,9 @@ class PostgresControl:
         self.local=local;self.data=Path(data);self.vault=Vault(data,'postgres')
         if not self.local.state('postgres','configuration'):
             self.local.state('postgres','configuration',{'enabled':False,'primary':False,'host':'127.0.0.1','port':5432,'database':'codex_engineering','schema':'dragonhydra_intelligence','runtime_user':'codex_lab_owner','migration_user':'codex_lab_owner','readonly_user':'codex_mcp_ro','administration_user':'codex_lab_owner'})
-        old=self.local.state('postgres','connection')
-        if old:self.local.state('postgres','connection',dict(old,state='DISCONNECTED',note='Test Connection verifies this application session. Previous successful query is historical.'))
+        # A historical test is not a live failure. Do not reset shared state when a
+        # diagnostic client is constructed; successful reads establish this session.
+        self._query_health=None
         from .postgres_store import PostgresStore
         self.store=PostgresStore(self)
     def config(self):return self.local.state('postgres','configuration')
@@ -37,7 +38,8 @@ class PostgresControl:
         for k in ('database','schema',*(p+'_user' for p in PURPOSES)):ident(c[k])
         if not c['schema'].startswith('dragonhydra_'):raise ValueError('Select an isolated dragonhydra_ schema')
         if c['readonly_user']==c['runtime_user']:raise ValueError('AI queries require a separate read-only database identity')
-        self.local.state('postgres','configuration',c);self.local.state('postgres','connection',{'state':'DISCONNECTED'});return self.status()
+        self._query_health=None
+        self.local.state('postgres','configuration',c);self.local.state('postgres','connection',{'state':'NOT_CHECKED'});return self.status()
     def credentials(self,body,remove=False):
         purpose=body.get('purpose','runtime')
         if purpose not in PURPOSES:raise ValueError('Unknown PostgreSQL credential purpose')
@@ -70,8 +72,16 @@ class PostgresControl:
                 role=conn.execute('SELECT rolsuper,rolcreaterole,rolcreatedb FROM pg_roles WHERE rolname=current_user').fetchone()
                 if role[0] or role[1]:raise Blocked('Use a non-superuser account without role-administration privileges')
                 yield conn
+                identity={'database':conn.info.dbname,'user':conn.info.user,'host':conn.info.host,'port':conn.info.port}
+            if purpose=='readonly':self._query_health={'state':'CONNECTED','at':now(),'last_successful_query':now(),'verified_by':'Successful read-only PostgreSQL transaction in this application session',**identity}
         except psycopg.Error as e:
-            code=e.sqlstate or 'CONNECTION';raise ValueError('PostgreSQL operation failed (SQLSTATE '+code+'). Check the local service, selected database, permissions and protected credential. Original observations were not replaced.') from None
+            code=e.sqlstate or 'CONNECTION'
+            explanation=('The saved database login was rejected. Check the selected read-only identity and re-enter its authorized password.' if code.startswith('28') else 'The database login cannot read this object. Check the selected DRAGONHYDRA schema and existing permissions; no permission changes were made.' if code=='42501' else 'The query exceeded its time limit. Narrow the selected data and try again.' if code=='57014' else 'Could not complete the database query. Check the local PostgreSQL service, host, port and selected database.')
+            if purpose=='readonly':self._query_health={'state':'AUTHENTICATION_FAILED' if code.startswith('28') else 'BLOCKED' if code=='42501' else 'FAILED','at':now(),'error':explanation,'sqlstate':code}
+            raise ValueError(explanation+' (SQLSTATE '+code+'). Original observations were not replaced.') from None
+        except (ValueError,Blocked) as e:
+            if purpose=='readonly':self._query_health={'state':'BLOCKED','at':now(),'error':str(e)}
+            raise
     def owned(self,c):
         s=self.config()['schema'];row=c.execute('SELECT to_regclass(%s)',(s+'.ownership',)).fetchone()
         if not row[0]:raise Blocked('The selected schema has not been initialized as DRAGONHYDRA-owned')
@@ -98,7 +108,9 @@ class PostgresControl:
         except (ValueError,Blocked) as e:self.local.state('postgres','connection',{'state':'BLOCKED' if isinstance(e,Blocked) else 'FAILED','at':now(),'error':str(e)});raise
     def status(self):
         c=self.config();last=self.local.state('postgres','connection') or {'state':'DISCONNECTED'}
-        return {'state':last['state'] if c['enabled'] else 'DISABLED','configuration':c,'connection':last,'credentials':{p:self.vault.status(p,self.binding(p)) for p in PURPOSES},'primary':'POSTGRESQL' if c['primary'] else 'SQLITE_OFFLINE','query_permissions':'READ_ONLY','writes':'APPLICATION_OWNED_SCHEMA_ONLY','mcp':self.local.state('postgres','mcp') or {'status':'NOT_RUN'},'backups':self.local.states('postgres-backup'),'migration':self.local.state('postgres','migration'),'role_limitation':'Existing non-superuser owner is shared for runtime/migration/admin; AI has a distinct SELECT-only credential. Separate runtime role creation requires an authorized database administrator.'}
+        current={**last,**(self._query_health or {'state':'NOT_CHECKED','note':'No query has run in this session yet. A previous test is historical, not evidence of a current failure.'})}
+        if current['state']=='CONNECTED':current.pop('error',None);current.pop('note',None);current.pop('sqlstate',None)
+        return {'state':current['state'] if c['enabled'] else 'DISABLED','configuration':c,'connection':current,'last_explicit_test':last,'configuration_only':self._query_health is None,'credentials':{p:self.vault.status(p,self.binding(p)) for p in PURPOSES},'primary':'POSTGRESQL' if c['primary'] else 'SQLITE_OFFLINE','query_permissions':'READ_ONLY','writes':'APPLICATION_OWNED_SCHEMA_ONLY','mcp':self.local.state('postgres','mcp') or {'status':'NOT_RUN'},'backups':self.local.states('postgres-backup'),'migration':self.local.state('postgres','migration'),'role_limitation':'Existing non-superuser owner is shared for runtime/migration/admin; AI has a distinct SELECT-only credential. Separate runtime role creation requires an authorized database administrator.'}
     def discover(self):
         binaries=Path(r'C:\Program Files\PostgreSQL\18\bin');result={'at':now(),'client_bin':str(binaries),'tools':{name:(binaries/(name+'.exe')).is_file() for name in ('psql','pg_dump','pg_restore')},'connection_verified':False}
         try:

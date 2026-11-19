@@ -71,7 +71,7 @@ class PostgresStore:
         filters=filters or {};limit=int(limit);offset=int(offset)
         if not 1<=limit<=10000 or not 0<=offset<=1000000:raise ValueError('Invalid query bounds')
         clauses=[];params=[]
-        for key,col in [('source','source'),('kind','kind'),('origin','origin'),('series','series')]:
+        for key,col in [('source','source'),('kind','kind'),('origin','origin'),('series','series'),('unit','unit')]:
             if filters.get(key):clauses.append(col+'=%s');params.append(filters[key])
         if filters.get('search'):clauses.append("payload_text ILIKE %s ESCAPE '~'");params.append('%'+str(filters['search'])[:120].replace('~','~~').replace('%','~%').replace('_','~_')+'%')
         for key,op in [('start','>='),('end','<=')]:
@@ -82,8 +82,8 @@ class PostgresStore:
         return {'total':total,'rows':rows,'limit':limit,'offset':offset,'datastore':'POSTGRESQL'}
     def summary(self):
         with self.control.connect('readonly',True) as c:
-            count=c.execute('SELECT COUNT(*) FROM '+self.relation('observations')).fetchone()[0];origins=dict(c.execute('SELECT origin,COUNT(*) FROM '+self.relation('observations')+' GROUP BY origin'));series=[dict(zip(('source','series','unit','origin','n'),r)) for r in c.execute('SELECT source,series,unit,origin,COUNT(*) FROM '+self.relation('observations')+' GROUP BY source,series,unit,origin')];receipts=[r[0] for r in c.execute('SELECT payload FROM '+self.relation('import_receipts')+' ORDER BY payload->>\'committed_at\' DESC NULLS LAST LIMIT 30')]
-        return {'observations':count,'provenance':origins,'series':series,'receipts':receipts,'integrity':'ok','integrity_ms':None,'schema':'PostgreSQL 1','datastore':'POSTGRESQL'}
+            count=c.execute('SELECT COUNT(*) FROM '+self.relation('observations')).fetchone()[0];origins=dict(c.execute('SELECT origin,COUNT(*) FROM '+self.relation('observations')+' GROUP BY origin'));series=[dict(zip(('source','series','unit','origin','n','numeric_n'),r)) for r in c.execute('SELECT source,series,unit,origin,COUNT(*),COUNT(value) FROM '+self.relation('observations')+' GROUP BY source,series,unit,origin')];receipts=[r[0] for r in c.execute('SELECT payload FROM '+self.relation('import_receipts')+' ORDER BY payload->>\'committed_at\' DESC NULLS LAST LIMIT 30')]
+        return {'observations':count,'provenance':origins,'series':series,'receipts':receipts,'integrity':'ok','integrity_basis':'Successful read of the selected schema; not a full PostgreSQL server corruption check','integrity_ms':None,'schema':'PostgreSQL 1','datastore':'POSTGRESQL','read_at':now(),'database':self.control.config()['database']+'.'+self.control.config()['schema'],'cached':False}
     def receipt(self,id):
         with self.control.connect('readonly',True) as c:r=c.execute('SELECT payload FROM '+self.relation('import_receipts')+' WHERE id=%s',(id,)).fetchone();return r[0] if r else None
     def analyses(self):

@@ -43,9 +43,10 @@ class Handler(BaseHTTPRequestHandler):
             if self.headers.get('Sec-Fetch-Site') in ('cross-site','same-site'):return self.send(403,{'error':'Cross-site requests are rejected'})
             if len(self.path)>8000:return self.send(414,{'error':'URL too long'})
             p=urlsplit(self.path);path=p.path;query={k:v[0] for k,v in parse_qs(p.query).items()}
-            if not post and path in ('/','/app.js','/sources.js','/workstation.js','/cockpit.js','/cockpit.css','/app.css'):
+            if not post and path in ('/','/app.js','/sources.js','/workstation.js','/cockpit.js','/cockpit.css','/app.css','/beginner.js','/beginner.css','/help.json'):
                 name='index.html' if path=='/' else path[1:]
-                return self.send(200,(Path(__file__).with_name('web')/name).read_bytes(),'text/html' if path=='/' else 'text/css' if path.endswith('.css') else 'text/javascript')
+                asset=(Path(__file__).with_name('web')/name).read_bytes()
+                return self.send(200,json.loads(asset) if path.endswith('.json') else asset,'text/html' if path=='/' else 'application/json' if path.endswith('.json') else 'text/css' if path.endswith('.css') else 'text/javascript')
             if not post and path=='/auth/identity':
                 from .contracts import fingerprint
                 challenge=query.get('challenge','')
@@ -75,6 +76,9 @@ class Handler(BaseHTTPRequestHandler):
             if bridge and not admin and not session and (post or path not in ('/api/status','/api/observations')):return self.send(403,{'error':'Joomla bridge credential is read-only and endpoint-scoped'})
             if post and not admin and (origin!=server.origin or not hmac.compare_digest(self.headers.get('X-DH-CSRF',''),session['csrf'])):return self.send(403,{'error':'Same-origin request and CSRF token required'})
             if post:
+                if path=='/api/preferences':
+                    if set(body)-{'beginner','tour_complete'} or any(type(v) is not bool for v in body.values()):raise ValueError('Preferences accept only beginner and tour_complete booleans')
+                    value={'beginner':True,'tour_complete':False,**(rt.store.state('ui','preferences') or {}),**body};rt.store.state('ui','preferences',value);return self.send(200,value)
                 if path=='/api/chat/create':return self.send(200,rt.conversations.create(body))
                 if path=='/api/chat/send':return self.send(202,rt.conversations.send(body))
                 if path=='/api/chat/cancel':return self.send(200,rt.conversations.cancel(body['turn_id']))
@@ -160,6 +164,7 @@ class Handler(BaseHTTPRequestHandler):
                 if path=='/api/shutdown':
                     self.send(200,{'status':'STOPPING'});threading.Thread(target=server.shutdown,daemon=True).start();return
             else:
+                if path=='/api/preferences':return self.send(200,{'beginner':True,'tour_complete':False,**(rt.store.state('ui','preferences') or {})})
                 if path=='/api/chat/sessions':return self.send(200,rt.conversations.list(query.get('search','')))
                 if path=='/api/chat/session':return self.send(200,rt.conversations.detail(query.get('id')))
                 if path=='/api/chat/export':return self.send(200,rt.conversations.detail(query.get('id')),download='dragonhydra-conversation.json')
@@ -175,6 +180,9 @@ class Handler(BaseHTTPRequestHandler):
                 if path=='/api/cloud/receipts':return self.send(200,sorted(rt.store.states('cloud-receipt'),key=lambda r:r['at'],reverse=True)[:100])
                 if path=='/api/session':return self.send(200,{'csrf':session['csrf'] if session else None,'authenticated':True})
                 if path=='/api/status':return self.send(200,rt.status())
+                if path=='/api/football/research':
+                    from .football_research import research
+                    return self.send(200,research(rt.store,query))
                 if path=='/api/tasks':return self.send(200,rt.store.tasks())
                 if path=='/api/providers':return self.send(200,rt.providers.list())
                 if path=='/api/football/comparison':
@@ -186,7 +194,7 @@ class Handler(BaseHTTPRequestHandler):
                 if path=='/api/sentiment':return self.send(200,[sentiment(r) for r in rt.store.query({'kind':'SHORT_TEXT'},500)['rows']])
                 if path in ('/api/observations','/api/export.json','/api/export.csv'):
                     limit=query.pop('limit',100 if path=='/api/observations' else 10000);offset=query.pop('offset',0)
-                    if set(query)-{'source','kind','origin','series','search','start','end'}:raise ValueError('Unknown filter')
+                    if set(query)-{'source','kind','origin','series','unit','search','start','end'}:raise ValueError('Unknown filter')
                     result=rt.store.query(query,limit,offset)
                     if path.endswith('.csv'):
                         stream=io.StringIO(newline='');fields=['id','source_id','key','kind','origin','value','unit','observed_at','collected_at','issue_at','valid_at','raw_hash','text'];writer=csv.writer(stream);writer.writerow(fields)

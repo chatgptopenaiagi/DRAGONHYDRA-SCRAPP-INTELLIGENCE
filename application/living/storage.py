@@ -93,7 +93,7 @@ COMMIT;''')
         filters=filters or {};limit=int(limit);offset=int(offset)
         if not 1<=limit<=10000 or not 0<=offset<=1000000:raise ValueError('Invalid query bounds')
         clauses=[];params=[]
-        for arg,col in [('source','source'),('kind','kind'),('origin','origin'),('series','series')]:
+        for arg,col in [('source','source'),('kind','kind'),('origin','origin'),('series','series'),('unit','unit')]:
             if filters.get(arg):clauses.append(col+'=?');params.append(filters[arg])
         if filters.get('search'):
             clauses.append("payload LIKE ? ESCAPE '~'");params.append('%'+str(filters['search'])[:120].replace('~','~~').replace('%','~%').replace('_','~_')+'%')
@@ -108,7 +108,7 @@ COMMIT;''')
         with self.lock:
             return {'observations':self.c.execute('SELECT COUNT(*) FROM observations').fetchone()[0],
                     'provenance':dict(self.c.execute('SELECT origin,COUNT(*) FROM observations GROUP BY origin')),
-                    'series':[dict(r) for r in self.c.execute('SELECT source,series,unit,origin,COUNT(*) n FROM observations GROUP BY source,series,unit,origin')],
+                    'series':[dict(r) for r in self.c.execute("SELECT source,series,unit,origin,COUNT(*) n,SUM(CASE WHEN json_extract(payload,'$.value') IS NOT NULL THEN 1 ELSE 0 END) numeric_n FROM observations GROUP BY source,series,unit,origin")],
                     'receipts':[json.loads(r[0]) for r in self.c.execute('SELECT payload FROM receipts ORDER BY rowid DESC LIMIT 30')],
                     'events':[dict(r) for r in self.c.execute('SELECT * FROM events ORDER BY id DESC LIMIT 40')],
                     'integrity':self.integrity,'integrity_ms':self.integrity_ms,'schema':3}

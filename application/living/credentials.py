@@ -43,7 +43,9 @@ class Vault:
     def get(self,slot,binding):
         with self.lock:
             path=self.path(slot)
-            if not path.exists():raise ValueError('Enter an API key for this provider before testing the connection')
+            if not path.exists():
+                if self.namespace=='postgres':raise ValueError('No saved PostgreSQL password for the '+str(slot)+' connection. Open PostgreSQL Control Center and save the authorized database credential.')
+                raise ValueError('Enter an API key for this provider before testing the connection')
             data=json.loads(protect(path.read_bytes(),self.entropy(slot,binding),True))
             if data.get('binding')!=binding:raise ValueError('Credentials belong to a different provider configuration')
             return data['credential']

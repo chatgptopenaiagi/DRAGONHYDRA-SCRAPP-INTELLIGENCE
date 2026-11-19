@@ -1,5 +1,6 @@
 """SQLite control plane and explicit analytical datastore selection; never silently falls back."""
 import json
+from .contracts import now
 from .storage import Store
 from .postgres_control import PostgresControl
 
@@ -27,7 +28,7 @@ class DataStore:
         except Exception:pass
         return local
     def summary(self):
-        if not self.is_postgres:return self.local.summary()|{'datastore':'SQLITE_OFFLINE'}
+        if not self.is_postgres:return self.local.summary()|{'datastore':'SQLITE_OFFLINE','read_at':now(),'database':str(self.local.path),'cached':False,'integrity_basis':'SQLite startup integrity check plus current read'}
         with self.local.lock:events=[dict(r) for r in self.local.c.execute('SELECT * FROM events ORDER BY id DESC LIMIT 40')]
         try:return self.postgres.store.summary()|{'events':events}
         except Exception:return {'observations':None,'provenance':{},'series':[],'receipts':[],'events':events,'integrity':'unavailable','datastore':'POSTGRESQL','error':'PostgreSQL is unavailable. Test the connection in PostgreSQL Control Center. SQLite offline mode must be selected explicitly.'}
