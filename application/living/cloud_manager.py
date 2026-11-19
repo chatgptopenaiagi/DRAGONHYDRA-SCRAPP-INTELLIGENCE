@@ -75,14 +75,13 @@ class Cloud:
             try:
                 a=ADAPTERS[c['slot']];binding=fingerprint([c['slot'],a.name,c.get('mock_origin') or a.base,a.auth,a.key_name]);values.append(vault.get(c['slot'],binding))
             except (ValueError,KeyError):pass
-        return values
+        return values+getattr(self,'extra_secrets',lambda:[])()
     def preview(self,b):
         c=self.config(b['id']);prompt=b.get('prompt','');ids=b.get('observation_ids',[]);knowledge=b.get('knowledge_ids',[])
         if not isinstance(prompt,str) or not 1<=len(prompt)<=2000:raise ValueError('Enter a question of 1–2000 characters')
         if not isinstance(ids,list) or len(ids)>20 or not isinstance(knowledge,list) or len(knowledge)>5:raise ValueError('Select at most 20 observations and 5 knowledge sources')
         if any(not isinstance(i,str) or not re.fullmatch('[A-Za-z0-9_-]{1,80}',i) for i in ids+knowledge):raise ValueError('Invalid evidence identity')
-        with self.store.lock:
-            records=[safe_record(json.loads(r[0])) for i in dict.fromkeys(ids) for r in self.store.c.execute('SELECT payload FROM observations WHERE id=?',(i,))]
+        records=[safe_record(r) for r in self.store.observations_by_ids(ids)]
         if len(records)!=len(set(ids)):raise ValueError('Selected observation no longer exists; refresh the preview')
         payload={'question':prompt,'observations':records,'knowledge':self.knowledge.query(ids=knowledge),'classification':'AI_INTERPRETATION_REQUEST'}
         if b.get('tool'):

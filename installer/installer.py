@@ -2,7 +2,7 @@
 import argparse,hashlib,json,os,shutil,subprocess,sys,tempfile,time,zipfile
 from pathlib import Path
 
-OWNER='DRAGONHYDRA-LivingIntelligence';VERSION='0.2.0-beta.3';KEY=r'Software\Microsoft\Windows\CurrentVersion\Uninstall\DRAGONHYDRA-LivingIntelligence';ISOLATED=False;SHORTCUT='DRAGONHYDRA Intelligence.lnk'
+OWNER='DRAGONHYDRA-LivingIntelligence';VERSION='0.2.0-beta.4';KEY=r'Software\Microsoft\Windows\CurrentVersion\Uninstall\DRAGONHYDRA-LivingIntelligence';ISOLATED=False;SHORTCUT='DRAGONHYDRA Intelligence.lnk'
 
 def registration_scope(target,isolated=False):
     global KEY,ISOLATED,SHORTCUT
@@ -166,7 +166,7 @@ def main():
     root=tk.Tk();root.title('DRAGONHYDRA Intelligence Setup');root.geometry('650x300');frame=ttk.Frame(root,padding=24);frame.pack(fill='both',expand=True)
     ttk.Label(frame,text='DRAGONHYDRA Intelligence',font=('Segoe UI',22,'bold')).pack(anchor='w');ttk.Label(frame,text=VERSION+' · per-user Windows x64 installation').pack(anchor='w',pady=8)
     path=tk.StringVar(value=str(a.target));ttk.Entry(frame,textvariable=path).pack(fill='x',pady=10)
-    ttk.Label(frame,text='Your observations remain in your local application data directory.\nUpgrades preserve the previous program folder for rollback.\nSQL integration remains blocked; offline operation is available.').pack(anchor='w',pady=8)
+    ttk.Label(frame,text='Your observations remain in your local application data directory.\nUpgrades preserve the previous program folder for rollback.\nPostgreSQL integration is explicitly configured; SQLite offline operation remains available.').pack(anchor='w',pady=8)
     def go():
         try:
             result=uninstall(path.get()) if a.uninstall else install(path.get());messagebox.showinfo('DRAGONHYDRA',('Uninstall requested. User data is preserved.' if a.uninstall else 'Installation complete. Open DRAGONHYDRA from the Start menu.'));root.destroy()

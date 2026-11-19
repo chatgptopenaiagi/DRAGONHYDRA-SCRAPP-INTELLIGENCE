@@ -1,3 +1,5 @@
+> PostgreSQL transition: see [POSTGRESQL.md](POSTGRESQL.md) for the active beta.4 database architecture. SQL Server descriptions below are retained historical beta.3 documentation, not active requirements.
+
 # Mission 006 contracts
 
 The existing Runtime remains the composition root and one acquisition worker owns scheduled collection. SQL, Cloud, Knowledge and EvidenceTools are independent modules using versioned stored component state. The existing single loopback HTTP server retains session/CSRF protection. No secondary server is created.

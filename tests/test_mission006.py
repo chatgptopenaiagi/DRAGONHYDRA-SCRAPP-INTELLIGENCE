@@ -72,14 +72,14 @@ class Mission006(unittest.TestCase):
         with self.assertRaises(ValueError):self.rt.evidence_tools.run('describe_table_schema',{'table':'component_state'})
         self.assertEqual(len(self.rt.evidence_tools.contracts()),11)
     def test_guard_blocks_before_driver(self):
-        with patch('pyodbc.connect',side_effect=AssertionError('must not connect')):
-            with self.assertRaises(Blocked):self.rt.sql.test()
-        self.assertEqual(self.rt.sql.status()['state'],'BLOCKED')
+        with patch('psycopg.connect',side_effect=AssertionError('must not connect')):
+            with self.assertRaises(Blocked):self.rt.postgres.test()
+        self.assertEqual(self.rt.postgres.status()['state'],'DISABLED')
     def test_readonly_guard_does_not_allow_writes(self):
         p=Path(self.tmp.name)/'fixture-guard.json';p.write_text(json.dumps({'status':'MAINTENANCE','sql_read_only_allowed':True}));self.assertTrue(guard_state(p)['allowed']);self.assertFalse(guard_state(p,True)['allowed'])
     def test_local_sql_only(self):
-        with self.assertRaises(ValueError):self.rt.sql.configure({'server':'external.example'})
-        with self.assertRaises(ValueError):self.rt.sql.configure({'database':'x;DROP DATABASE y'})
+        with self.assertRaises(ValueError):self.rt.postgres.configure({'host':'external.example'})
+        with self.assertRaises(ValueError):self.rt.postgres.configure({'database':'x;DROP DATABASE y'})
     def test_knowledge_offline_and_disabled(self):
         id=self.rt.knowledge.list()[0]['id'];self.rt.set_mode('offline')
         with self.assertRaises(Blocked):self.rt.knowledge.refresh(id)
@@ -105,7 +105,7 @@ class Mission006(unittest.TestCase):
         from living.server import Server
         s=Server(('127.0.0.1',0),self.rt,'synthetic-local-admin-006');t=threading.Thread(target=s.serve_forever);t.start()
         try:
-            paths=['sql/'+x for x in ('configure','discover','test','inventory','provision','sync','backups','databases','schemas','tables','describe','query')]+['cloud/'+x for x in ('configure','credential','credential/remove','test','preview','run','inspect','stop')]+['knowledge/configure','knowledge/refresh','tools/run','provider/status']
+            paths=['postgresql/'+x for x in ('configure','discover','test','provision','migrate','backup','restore','databases','schemas','tables','describe','query','mcp','activate','credential','credential/remove','credentials/import')]+['cloud/'+x for x in ('configure','credential','credential/remove','test','preview','run','inspect','stop')]+['knowledge/configure','knowledge/refresh','tools/run','provider/status']
             token,csrf=s.auth.exchange(s.auth.ticket())
             for path in paths:
                 for cookie,expected in [(None,401),(token,403)]:

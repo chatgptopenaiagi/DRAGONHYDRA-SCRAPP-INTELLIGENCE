@@ -1,3 +1,5 @@
+> PostgreSQL transition: see [POSTGRESQL.md](POSTGRESQL.md) for the active beta.4 database architecture. SQL Server descriptions below are retained historical beta.3 documentation, not active requirements.
+
 # AI conversation cockpit
 
 The cockpit shares existing protected provider configuration with Cloud AI Control Center. Five company cards represent OpenAI, Anthropic, xAI, Microsoft developer services and Manus. Microsoft offers Azure OpenAI, Foundry model inference or Copilot Studio Direct Line. Consumer Copilot is not an inference API. Local OpenAI-compatible inference remains available separately.

@@ -73,8 +73,8 @@ class Cockpit(unittest.TestCase):
         r=self.chat.roundtable({'providers':['openai','anthropic','xai'],'text':'Compare the same question','confirm_multiple_requests':True});self.assertEqual(r['responses'][2]['state'],'NOT_CONFIGURED');self.assertEqual(len({x['session_id'] for x in r['responses'][:2]}),2)
         for x in r['responses'][:2]:self.assertEqual(self.wait({'id':x['turn_id']})['state'],'COMPLETE')
     def test_sql_guard_blocks_before_driver(self):
-        with patch('living.sql_control.SqlControl.connect',wraps=self.rt.sql.connect) as call:
-            r=self.rt.registry.run('run_bounded_sql_select',{'query_id':'owned_counts'});self.assertEqual(r['state'],'BLOCKED');self.assertIn('guard',r['error']);self.assertEqual(call.call_count,1)
+        with patch('living.postgres_control.PostgresControl.connect',wraps=self.rt.postgres.connect) as call:
+            r=self.rt.registry.run('run_bounded_postgresql_select',{'table':'observations'});self.assertEqual(r['state'],'BLOCKED');self.assertIn('disabled',r['error']);self.assertEqual(call.call_count,1)
     def test_hardware_matches_independent_memory_and_process(self):
         import os,psutil
         h=self.rt.hardware.sample();self.assertEqual(h['status'],'MEASURED');self.assertEqual(h['ram']['total_bytes'],psutil.virtual_memory().total);self.assertTrue(any(p['pid']==os.getpid() for p in h['processes']));self.assertEqual(h['cpu']['temperature']['status'],'UNAVAILABLE')

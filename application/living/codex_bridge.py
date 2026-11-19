@@ -59,7 +59,7 @@ class Engineering:
         finally:
             if client:client.close()
     def submit(self,instruction,area='general'):
-        if not isinstance(instruction,str) or not 1<=len(instruction)<=2000 or area not in ('general','csv','sql','openai','ui','hardware'):raise ValueError('Enter a bounded engineering instruction')
+        if not isinstance(instruction,str) or not 1<=len(instruction)<=2000 or area not in ('general','csv','postgresql','openai','ui','hardware'):raise ValueError('Enter a bounded engineering instruction')
         from .cloud_manager import scrub
         instruction=self.sanitize(instruction);c=self.store.state('engineering','config')
         if not c['enabled']:raise Blocked('Codex attachment is disabled')

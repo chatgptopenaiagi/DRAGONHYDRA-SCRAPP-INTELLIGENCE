@@ -14,20 +14,21 @@ DEFINITIONS={
  'query_football_results':('Retained football fixtures and results with provenance',{'source':S,'search':S,'limit':LIMIT}),
  'query_historical_odds':('Retained bookmaker quotations, not predictions',{'source':S,'search':S,'limit':LIMIT}),
  'get_api_provider_status':('Actual saved football provider status without keys',{}),
- 'get_sql_server_status':('Guarded SQL connection status, distinct from Windows service state',{}),
- 'list_sql_databases':('Query accessible local SQL database names when the guard permits',{}),
- 'list_sql_schemas':('Actual visible schema metadata in an accessible local SQL database',{'database':S}),
- 'list_sql_tables':('Visible user tables and views; absence does not prove none exist in inaccessible databases',{'database':S,'schema':S}),
- 'describe_sql_table':('Actual columns and indexes of an exact visible SQL table or view',{'database':S,'schema':S,'table':S}),
- 'query_sports_data':('Bounded SELECT from an exact visible sports table; original timestamps only',{'database':S,'schema':S,'table':S,'limit':LIMIT}),
- 'run_bounded_readonly_query':('Fixed read-only SQL templates; no arbitrary SQL, EXEC or batches',{'query_id':{'type':'string','enum':['server_identity','database_catalog','schemas','sports_records']},'database':S,'schema':S,'table':S,'limit':LIMIT}),
- 'describe_sports_tables':('Query SQL sports table metadata when the guard permits',{}),
- 'run_bounded_sql_select':('Fixed parameterized SQL templates; arbitrary SQL is never accepted',{'query_id':{'type':'string','enum':['owned_results','owned_odds','owned_counts']},'source':S,'limit':LIMIT}),
+ 'get_postgresql_status':('Actual PostgreSQL connection and selected datastore',{}),
+ 'list_postgresql_databases':('Actual accessible PostgreSQL database catalog',{}),
+ 'list_postgresql_schemas':('Actual PostgreSQL schema catalog',{}),
+ 'list_postgresql_tables':('Tables in the owned DRAGONHYDRA schema',{}),
+ 'describe_postgresql_table':('Real PostgreSQL columns and types',{'table':S}),
+ 'run_bounded_postgresql_select':('Simple SELECT columns FROM owned_table LIMIT n; functions and compound SQL prohibited',{'sql':{'type':'string','maxLength':1000},'table':S,'limit':LIMIT}),
+ 'query_sports_data':('Bounded PostgreSQL sports records',{'table':S,'limit':LIMIT}),
+ 'inspect_postgresql_migrations':('Verified migration receipts in PostgreSQL',{'limit':LIMIT}),
+ 'get_database_integrity':('Actual observation and provenance counts in the selected datastore',{}),
+ 'get_postgresql_mcp_status':('Last genuine MCP query comparison; never infer connection from registration',{}),
  'inspect_import_receipts':('Actual import receipts and identities',{'receipt_id':S,'limit':LIMIT}),
  'compare_football_providers':('Compare original football records without merging uncertain identities',{'source':S,'search':S,'limit':LIMIT}),
  'read_application_diagnostics':('Recent redacted application errors and task states',{'limit':LIMIT}),
  'request_csv_import':('Stage an owner action to open the CSV wizard; never select or import files automatically',{'reason':S}),
- 'request_database_sync':('Stage a bounded SQL synchronization for separate owner execution',{'source':S,'reason':S}),
+ 'request_database_sync':('Stage a verified local SQLite snapshot migration for owner execution',{'source':S,'reason':S}),
  'request_engineering_diagnostic':('Stage an instruction for owner approval to the existing Codex thread; no cloud shell access',{'instruction':{'type':'string','maxLength':2000}}),
 }
 MAPPING={'list_football_competitions':'list_competitions','query_football_results':'search_historical_results','query_historical_odds':'query_available_odds','compare_football_providers':'compare_provider_records'}
@@ -61,33 +62,22 @@ class Registry:
         if n in ('query_football_results','query_historical_odds'):
             selected=self.store.query({k:a[k] for k in ('source','search') if a.get(k)}|{'kind':'SPORTS_RESULT' if n=='query_football_results' else 'SPORTS_ODDS'},limit)
             return {'total_matching':selected['total'],'returned':len(selected['rows']),'records':[safe_record(r) for r in selected['rows']],'limitation':'Retained observations only; bookmaker prices are not predictions or a claim of live availability.'}
-        if n=='list_football_competitions':
-            with self.store.lock:
-                rows=self.store.c.execute("SELECT DISTINCT source,json_extract(payload,'$.metadata.competition') competition,json_extract(payload,'$.metadata.season') season FROM observations WHERE json_extract(payload,'$.metadata.competition') IS NOT NULL AND (?='' OR source=?) AND (?='' OR payload LIKE ? ESCAPE '~') ORDER BY source,competition,season LIMIT ?",(a.get('source',''),a.get('source',''),a.get('search',''),'%'+a.get('search','').replace('~','~~').replace('%','~%').replace('_','~_')+'%',limit)).fetchall()
-            return {'competitions':[dict(r) for r in rows],'limit':limit,'limitation':'Original provider identities are retained; similar names are not merged.'}
+        if n=='list_football_competitions':return {'competitions':self.store.competitions(a),'limit':limit,'limitation':'Provider identities remain distinct.'}
         if n in MAPPING:return rt.evidence_tools.run(MAPPING[n],a)
         if n=='get_hardware_metrics':return rt.hardware.sample()
         if n=='get_system_status':
             s=rt.status();return {k:s[k] for k in ('product','version','mode','storage','uptime_seconds','pid','disk_free','database_bytes','recovery')}|{'observations':s['summary']['observations'],'provenance':s['summary']['provenance']}
         if n=='list_dragonhydra_sources':return [{k:s.get(k) for k in ('id','name','adapter','kind','origin','enabled','last_success')} for s in self.store.sources()[:limit]]
         if n=='get_api_provider_status':return [{k:p.get(k) for k in ('slot','name','state','effective_state','credential_status','last_success','last_checked','last_result','quota')} for p in rt.providers.list()]
-        if n=='get_sql_server_status':
-            s=rt.sql.status();return {k:s[k] for k in ('state','guard','connection','sync','authentication')}
-        if n=='list_sql_databases':return rt.sql.databases()
-        if n=='list_sql_schemas':return rt.sql.schemas(a.get('database'))
-        if n=='list_sql_tables':return rt.sql.tables(a.get('database'),a.get('schema',''))
-        if n=='describe_sql_table':return rt.sql.describe(a.get('database'),a.get('schema','dbo'),a.get('table',''))
-        if n in ('query_sports_data','run_bounded_readonly_query'):return rt.sql.readonly_query(a|({'query_id':'sports_records'} if n=='query_sports_data' else {}))
-        if n=='describe_sports_tables':
-            d=rt.sql.inventory();allowed={(t['schema'],t['table']) for t in d['tables'] if t['sports_candidate']};return {k:[r for r in v if (r['schema'],r['table']) in allowed][:100] if isinstance(v,list) else v for k,v in d.items()}
-        if n=='run_bounded_sql_select':
-            q=a.get('query_id');source=a.get('source','')
-            if q not in ('owned_results','owned_odds','owned_counts'):raise ValueError('Choose a documented SQL query template')
-            with closing(rt.sql.connect()) as c:
-                rt.sql.owned(c);cur=c.cursor()
-                if q=='owned_counts':return [{'kind':r[0],'origin':r[1],'rows':r[2]} for r in cur.execute('SELECT TOP (100) kind,origin,COUNT_BIG(*) FROM dh006.Observations WHERE (?=\'\' OR provider_id=?) GROUP BY kind,origin',source,source)]
-                kind='SPORTS_RESULT' if q=='owned_results' else 'SPORTS_ODDS'
-                return [safe_record(json.loads(r[0])) for r in cur.execute('SELECT TOP (?) payload FROM dh006.Observations WHERE kind=? AND (?=\'\' OR provider_id=?) ORDER BY id',limit,kind,source,source)]
+        if n=='get_postgresql_status':return rt.postgres.status()
+        if n=='list_postgresql_databases':return rt.postgres.databases()
+        if n=='list_postgresql_schemas':return rt.postgres.schemas()
+        if n=='list_postgresql_tables':return rt.postgres.tables()
+        if n=='describe_postgresql_table':return rt.postgres.describe(a.get('table','observations'))
+        if n in ('query_sports_data','run_bounded_postgresql_select'):return rt.postgres.query(a)
+        if n=='inspect_postgresql_migrations':return rt.postgres.query({'table':'migration_history','limit':limit})
+        if n=='get_database_integrity':return {k:v for k,v in self.store.summary().items() if k not in ('events','receipts','series')}
+        if n=='get_postgresql_mcp_status':return rt.postgres.status()['mcp']
         if n=='inspect_import_receipts':return self.store.receipt(a['receipt_id']) if a.get('receipt_id') else self.store.summary()['receipts'][:limit]
         if n=='read_application_diagnostics':return {'events':self.store.summary()['events'][:limit],'tasks':[{k:t.get(k) for k in ('id','state','error','updated_at')} for t in self.store.tasks()[:limit]],'integrity':self.store.integrity}
         if n.startswith('request_'):
@@ -100,7 +90,7 @@ class Registry:
         if approve:
             try:
                 n=a['kind'];b=a['arguments']
-                result={'open_view':'import-wizard'} if n=='request_csv_import' else self.rt.sql.sync(b.get('source'),100) if n=='request_database_sync' else self.rt.engineering.submit(b.get('instruction',''))
+                result={'open_view':'import-wizard'} if n=='request_csv_import' else self.rt.postgres.migrate(self.store.path) if n=='request_database_sync' else self.rt.engineering.submit(b.get('instruction',''))
                 a.update(state='COMPLETE',result=result)
             except Exception as e:a.update(state='BLOCKED',error=str(e) if isinstance(e,(ValueError,Blocked)) else 'Owner action failed')
         a['completed_at']=now();self.store.state('owner-action',id,a);return a

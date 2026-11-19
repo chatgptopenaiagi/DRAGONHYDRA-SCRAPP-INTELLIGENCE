@@ -14,7 +14,7 @@ SEEDS=[
  ('azure-openai','Azure OpenAI Responses','https://learn.microsoft.com/en-us/azure/ai-foundry/openai/how-to/responses','Microsoft Azure OpenAI deployments'),
  ('copilot-studio','Copilot Studio channels','https://learn.microsoft.com/en-us/microsoft-copilot-studio/guidance/channels','Microsoft Copilot Studio Direct Line agents'),
  ('manus','Manus task API','https://open.manus.im/docs/v2/introduction','AI Manus asynchronous task agent'),
- ('sql-server','SQL Server metadata','https://learn.microsoft.com/en-us/sql/relational-databases/system-catalog-views/catalog-views-transact-sql?view=sql-server-ver16','SQL Server tables schemas columns indexes'),
+ ('postgresql','PostgreSQL system catalogs','https://www.postgresql.org/docs/current/catalogs.html','PostgreSQL tables schemas columns indexes'),
  ('football-csv','Historical football CSV','https://www.football-data.co.uk/notes.txt','football CSV historical odds provenance schema'),
  ('openligadb','OpenLigaDB documentation','https://api.openligadb.de/swagger/v1/swagger.json','football Bundesliga JSON schema'),
  ('thesportsdb','TheSportsDB documentation','https://www.thesportsdb.com/documentation','football teams API public data')]

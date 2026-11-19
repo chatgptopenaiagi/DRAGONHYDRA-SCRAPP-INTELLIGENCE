@@ -131,16 +131,18 @@ def native(args):
     def backup():
         ensure(data.get(),port.get(),mode.get(),args.sql_guard);r=request(data.get(),'/api/backup',{});messagebox.showinfo('Verified backup',r['name']+'\nSHA-256: '+r['sha256'])
     def restore_ui():
+        state=running(data.get())
+        if state and state.get('postgresql',{}).get('primary')=='POSTGRESQL':view('postgresql');return
         path=filedialog.askopenfilename(title='Select DRAGONHYDRA backup',filetypes=[('SQLite backup','*.sqlite3')])
         if path and messagebox.askyesno('Restore selected candidate','Stop this candidate and restore the selected backup? The current database will be backed up first.'):
             stop(data.get());restore(data.get(),path);ensure(data.get(),port.get(),mode.get(),args.sql_guard)
     buttons=ttk.Frame(frame);buttons.pack(fill='x')
-    entries=[('Start / open dashboard',start),('System health',lambda:view('overview')),('Data sources',lambda:view('sources')),('Active tasks',lambda:view('recovery')),('Selected database',lambda:messagebox.showinfo('Database',str(Path(data.get())/'intelligence.sqlite3'))),('Create verified backup',backup),('Restore a backup',restore_ui),('Diagnostics',lambda:view('diagnostics')),('Revoke browser sessions',lambda:request(data.get(),'/api/revoke',{})),('Stop gracefully',lambda:stop(data.get()))]
+    entries=[('Start / open dashboard',start),('System health',lambda:view('overview')),('Data sources',lambda:view('sources')),('Active tasks',lambda:view('recovery')),('Selected database',lambda:messagebox.showinfo('Database',str((running(data.get()) or {}).get('database',Path(data.get())/'intelligence.sqlite3')))),('Create verified backup',backup),('Restore a backup',restore_ui),('Diagnostics',lambda:view('diagnostics')),('Revoke browser sessions',lambda:request(data.get(),'/api/revoke',{})),('Stop gracefully',lambda:stop(data.get()))]
     for i,(label,fn) in enumerate(entries):ttk.Button(buttons,text=label,command=lambda f=fn:action(f)).grid(row=i//2,column=i%2,sticky='ew',padx=4,pady=5)
     buttons.columnconfigure(0,weight=1);buttons.columnconfigure(1,weight=1)
     ttk.Label(frame,text='Closing this launcher leaves the intelligence service running.\nUse Stop gracefully to stop collection and close the database.',wraplength=610).pack(anchor='w',pady=18)
     def refresh():
-        state=running(data.get());status.set(f"Ready · {state['mode']} · {state['summary']['observations']} observations · SQL {state['sql']['state']}" if state else 'Stopped · Start to check database integrity and open an authenticated session')
+        state=running(data.get());status.set(f"Ready · {state['mode']} · {state['summary']['observations']} observations · PostgreSQL {state['postgresql']['state']}" if state else 'Stopped · Start to check database integrity and open an authenticated session')
     refresh();root.mainloop()
 def main():
     default=Path(os.environ.get('LOCALAPPDATA',str(Path.home())))/'DRAGONHYDRA/LivingIntelligence'

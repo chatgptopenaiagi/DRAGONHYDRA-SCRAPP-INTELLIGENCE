@@ -1,3 +1,5 @@
+> PostgreSQL transition: see [POSTGRESQL.md](POSTGRESQL.md) for the active beta.4 database architecture. SQL Server descriptions below are retained historical beta.3 documentation, not active requirements.
+
 # SQL Server read-only integration
 
 SQL Server Control Center uses Windows integrated authentication against an explicitly configured local instance. A running Windows service does not establish a SQL connection. Test Connection executes `SELECT @@VERSION`, authenticated identity and accessible database queries. The application reports CONNECTED only after those queries succeed. After restart, a retained previous success is shown separately and a new connection test is required.

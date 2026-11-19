@@ -1,3 +1,5 @@
+> PostgreSQL transition: see [POSTGRESQL.md](POSTGRESQL.md) for the active beta.4 database architecture. SQL Server descriptions below are retained historical beta.3 documentation, not active requirements.
+
 # DRAGONHYDRA Intelligence 0.2.0-beta.3
 
 Open DragonhydraIntelligence.exe. The native launcher reopens an authenticated dashboard for its selected data directory. Port 0 chooses a free port; another database is never silently reused. Default state is in %LOCALAPPDATA%/DRAGONHYDRA/LivingIntelligence, outside the program directory. Closing the launcher leaves the service running; use Stop gracefully.

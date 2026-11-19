@@ -15,7 +15,7 @@ class Hardware:
             except psutil.Error:pass
             for p in psutil.process_iter(['pid','ppid','name','memory_info','cpu_times','create_time']):
                 try:
-                    d=p.info;name=d['name'].lower();role='APPLICATION_OWNED' if p.pid in own else 'DRAGONHYDRA_INSTANCE' if 'dragonhydra' in name else 'SQL_SERVER' if name in ('sqlservr.exe','sqlagent.exe','sqlbrowser.exe') else 'LOCAL_AI' if any(x in name for x in ('llama-server','qwen','ollama','blackhole')) else None
+                    d=p.info;name=d['name'].lower();role='APPLICATION_OWNED' if p.pid in own else 'DRAGONHYDRA_INSTANCE' if 'dragonhydra' in name else 'POSTGRESQL' if name in ('postgres.exe','pg_ctl.exe') else 'LOCAL_AI' if any(x in name for x in ('llama-server','qwen','ollama','blackhole')) else None
                     if not role:continue
                     processes.append({'pid':p.pid,'parent_pid':d['ppid'],'name':d['name'],'role':role,'rss_bytes':d['memory_info'].rss,'cpu_seconds':round(d['cpu_times'].user+d['cpu_times'].system,3),'started_epoch':d['create_time']})
                     try:ports.extend({'pid':p.pid,'address':x.laddr.ip,'port':x.laddr.port} for x in p.net_connections(kind='tcp') if x.status=='LISTEN')
@@ -26,7 +26,7 @@ class Hardware:
                 for service in psutil.win_service_iter():
                     try:
                         name=service.name()
-                        if name.startswith(('MSSQL','SQLAgent','SQLSERVER')) or name=='SQLBrowser':services.append({'name':name,'state':service.status(),'pid':service.pid()})
+                        if name.lower().startswith('postgres'):services.append({'name':name,'state':service.status(),'pid':service.pid()})
                     except psutil.Error:pass
             gpu={'status':'UNAVAILABLE','reason':'NVIDIA-SMI unavailable or no permitted NVIDIA sensor'};exe=shutil.which('nvidia-smi')
             if exe:
@@ -47,4 +47,4 @@ class Hardware:
             if self.last:
                 dt=current['time']-self.last['time'];rates={k+'_bytes_per_second':max(0,(current[k]-self.last[k])/dt) for k in ('read','write','sent','received')};rates['interval_seconds']=dt
             self.last=current
-            self.cached={'at':now(),'status':'MEASURED','cpu':{'utilization_percent':cpu,'sample_seconds':.2,'temperature':{'status':'UNAVAILABLE','reason':'No verified CPU package temperature sensor configured'}},'ram':{'total_bytes':memory.total,'used_bytes':memory.used,'available_bytes':memory.available,'percent':memory.percent},'disk':{'total_bytes':disk.total,'free_bytes':disk.free,'used_bytes':disk.used},'system_io_rates':rates or {'status':'FIRST_SAMPLE_NO_RATE'},'network_process_attribution':{'status':'UNAVAILABLE','note':'Network counters above are system-wide, not assigned to individual processes'},'gpu':gpu,'processes':processes,'listening_ports':ports,'sql_services':services,'measurement_seconds':time.monotonic()-started};self.measured=time.monotonic();return self.cached
+            self.cached={'at':now(),'status':'MEASURED','cpu':{'utilization_percent':cpu,'sample_seconds':.2,'temperature':{'status':'UNAVAILABLE','reason':'No verified CPU package temperature sensor configured'}},'ram':{'total_bytes':memory.total,'used_bytes':memory.used,'available_bytes':memory.available,'percent':memory.percent},'disk':{'total_bytes':disk.total,'free_bytes':disk.free,'used_bytes':disk.used},'system_io_rates':rates or {'status':'FIRST_SAMPLE_NO_RATE'},'network_process_attribution':{'status':'UNAVAILABLE','note':'Network counters above are system-wide, not assigned to individual processes'},'gpu':gpu,'processes':processes,'listening_ports':ports,'postgresql_services':services,'measurement_seconds':time.monotonic()-started};self.measured=time.monotonic();return self.cached

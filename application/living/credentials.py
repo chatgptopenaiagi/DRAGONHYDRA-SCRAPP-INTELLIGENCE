@@ -24,10 +24,10 @@ def protect(raw,entropy,decrypt=False):
 
 class Vault:
     def __init__(self,data,namespace='providers'):
-        if namespace not in ('providers','cloud'):raise ValueError('Unknown credential namespace')
+        if namespace not in ('providers','cloud','postgres'):raise ValueError('Unknown credential namespace')
         self.namespace=namespace;self.data=Path(data).resolve();local_secret(self.data);self.folder=self.data/'private'/namespace;self.folder.mkdir(exist_ok=True);self.lock=threading.RLock()
     def path(self,slot):
-        allowed=('1','2','3','4','5','6') if self.namespace=='providers' else ('openai','anthropic','xai','foundry','azure-openai','copilot-studio','manus','local')
+        allowed=('runtime','migration','readonly','administration') if self.namespace=='postgres' else ('1','2','3','4','5','6') if self.namespace=='providers' else ('openai','anthropic','xai','foundry','azure-openai','copilot-studio','manus','local')
         if str(slot) not in allowed:raise ValueError('Unknown provider slot')
         return self.folder/(str(slot)+'.dpapi')
     def entropy(self,slot,binding):
