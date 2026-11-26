@@ -31,3 +31,5 @@ Use a disposable English-language Android emulator with DocumentsUI for the acce
 ## Recovery
 
 The unchanged tag and original verification files identify the original Windows distributions. Android JSON export restores local observation history after a clean install. Android application updates require the same package ID and signing identity. Python removal uses python -m pip uninstall dragonhydra-intelligence after stopping the dashboard. The selected SQLite profile remains available for later use.
+
+For large-screen acceptance, select a tablet emulator or set its display to 1600×2560 at 240 dpi, then run the same command. The test instrumentation rotates the emulator display directly. Android 16 and later can ignore app-requested orientation on large displays. Restore the test emulator's display settings after use.

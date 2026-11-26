@@ -2,7 +2,7 @@ package io.github.chatgptopenaiagi.dragonhydra.acceptance;
 
 import android.app.*;
 import android.content.*;
-import android.content.pm.ActivityInfo;
+
 import android.os.*;
 import android.view.*;
 import android.view.accessibility.*;
@@ -44,7 +44,7 @@ public final class Acceptance extends Instrumentation {
     private AccessibilityNodeInfo find(AccessibilityNodeInfo n,String label) {
         if(n==null)return null;
         if(label.equalsIgnoreCase(String.valueOf(n.getText()))||label.equalsIgnoreCase(String.valueOf(n.getContentDescription())))return n;
-        for(int i=0;i<n.getChildCount();i++){AccessibilityNodeInfo hit=find(n.getChild(i),label);if(hit!=null)return hit;}
+        for(int i=n.getChildCount()-1;i>=0;i--){AccessibilityNodeInfo hit=find(n.getChild(i),label);if(hit!=null)return hit;}
         return null;
     }
     private boolean clickSystem(String label,int attempts){
@@ -98,10 +98,10 @@ public final class Acceptance extends Instrumentation {
                 report.put("vectors",observed);test("15 shared market vectors executed",true);
                 js("document.getElementById('price-first').value='0';document.getElementById('calculate').click()");
                 waitFor("document.getElementById('result').innerText.includes('Check your inputs')");test("invalid input feedback",true);
-                runOnMainSync(()->activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE));
+                getUiAutomation().setRotation(UiAutomation.ROTATION_FREEZE_90);
                 waitFor("innerWidth>innerHeight && current==='calculator' && document.getElementById('price-first').value==='0'");
-                runOnMainSync(()->activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT));
-                waitFor("innerHeight>innerWidth");test("rotation retained edited inputs",true);
+                getUiAutomation().setRotation(UiAutomation.ROTATION_FREEZE_0);
+                waitFor("innerHeight>innerWidth");getUiAutomation().setRotation(UiAutomation.ROTATION_UNFREEZE);test("rotation retained edited inputs",true);
                 sendKeyDownUpSync(KeyEvent.KEYCODE_BACK);waitFor("current==='overview'");test("Android Back restored overview",true);
                 js("el('theme').value='dark';el('theme').dispatchEvent(new Event('change'))");
                 waitFor("Local.theme()==='dark' && document.documentElement.dataset.theme==='dark'");test("persistent appearance",true);
