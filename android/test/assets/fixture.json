@@ -1,0 +1,27 @@
+{
+  "schema": "dh.mobile-history/1",
+  "market": "full-time match winner",
+  "observations": [
+    {
+      "event": "Synthetic exhibition A v B",
+      "source": "Synthetic QA fixture",
+      "selection": "A",
+      "at": "2026-01-01T01:00:00Z",
+      "decimal": "2.1"
+    },
+    {
+      "event": "Synthetic exhibition A v B",
+      "source": "Synthetic QA fixture",
+      "selection": "A",
+      "at": "2026-01-01T02:00:00Z",
+      "decimal": "2.3"
+    },
+    {
+      "event": "Synthetic exhibition A v B",
+      "source": "Synthetic QA fixture",
+      "selection": "A",
+      "at": "2026-01-01T03:00:00Z",
+      "decimal": "2.5"
+    }
+  ]
+}

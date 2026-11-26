@@ -1,6 +1,8 @@
 # DRAGONHYDRA Next Generation
 
-A local-first Windows sports intelligence application for inspecting source records, comparing historical bookmaker prices and evaluating probability models. Version **0.3.0-beta.1** continues DRAGONHYDRA SCRAPP INTELLIGENCE.
+Install the [Android edition](docs/distribution/ANDROID.md) or the [Python wheel and programming API](docs/distribution/PYTHON.md). The [distribution guide](docs/distribution/BUILD.md) connects each package to its build and acceptance procedure.
+
+A local-first sports intelligence application for inspecting source records, comparing historical bookmaker prices and evaluating probability models. Version **0.3.0-beta.1** continues DRAGONHYDRA SCRAPP INTELLIGENCE.
 
 [Download the Windows prerelease](https://github.com/chatgptopenaiagi/DRAGONHYDRA-SCRAPP-INTELLIGENCE/releases/tag/v0.3.0-beta.1) · [User guide, architecture and formulas](docs/next-generation/PLATFORM.md) · [Validation report](docs/RELEASE-0.3.0-beta.1.md) · [Roadmap](docs/next-generation/ROADMAP.md)
 
@@ -23,6 +25,6 @@ py -3.13 -m venv .venv
 .\.venv\Scripts\python application/living_launch.py
 ```
 
-The historical SQL Server adapter remains available for legacy unit verification. The current analytical stores are SQLite and optional PostgreSQL. Android and Joomla were delivered on other DRAGONHYDRA tracks. This release distributes Windows x64 and source. No live bookmaker feed is bundled. Stored odds, calculated market weights and model estimates have distinct provenance.
+The historical SQL Server adapter remains available for legacy unit verification. The current analytical stores are SQLite and optional PostgreSQL. The distribution supplement adds an offline Android application and an installable Python wheel to the original Windows x64 and source release. No live bookmaker feed is bundled. Stored odds, calculated market weights and model estimates have distinct provenance.
 
 Older guides remain available for [football provider configuration](docs/mission-005/FOOTBALL-API-COST-COMPARISON.md), [the conversation cockpit](docs/mission-006/AI-COCKPIT.md) and [PostgreSQL](docs/mission-006/POSTGRESQL.md). See [AGENTS.md](AGENTS.md) for development and release procedures.

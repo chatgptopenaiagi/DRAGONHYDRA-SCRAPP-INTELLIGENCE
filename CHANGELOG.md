@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.3.0-beta.1 · Distribution supplement
+
+Added a signed standalone offline Android application and a pure Python wheel with a developer API, CLI, workstation dashboard and export commands. Added installed-package and Android runtime acceptance, source association and shared decimal test vectors.
+
 ## 0.3.0-beta.1 · Next Generation
 
 Added an event scoreboard for five major leagues, historical snapshot membership, an exhaustive market calculator, evidence-linked price histories and a frozen model evaluation. Corrected provider quote matching, source-filter quality counts and ambiguous participant matching. Accelerated paginated SQLite history reads. Updated Windows packaging to include the PostgreSQL client and documented its dependencies.

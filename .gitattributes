@@ -3,3 +3,7 @@ installer/** -text
 docs/mission-006/** -text
 tools/** -text
 tests/** -text
+
+android/** text eol=lf
+docs/distribution/** text eol=lf
+pyproject.toml text eol=lf

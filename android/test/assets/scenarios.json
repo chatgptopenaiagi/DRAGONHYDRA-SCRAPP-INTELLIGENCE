@@ -1,0 +1,210 @@
+[
+  {
+    "id": "three-way",
+    "valid": true,
+    "body": {
+      "market": "1X2",
+      "format": "decimal",
+      "prices": {
+        "home": "2",
+        "draw": "3",
+        "away": "4"
+      },
+      "assumption": {
+        "outcome": "home",
+        "probability": "0.55",
+        "basis": "Synthetic probability"
+      }
+    }
+  },
+  {
+    "id": "fractional",
+    "valid": true,
+    "body": {
+      "market": "1X2",
+      "format": "fractional",
+      "prices": {
+        "home": "1/1",
+        "draw": "2/1",
+        "away": "3/1"
+      }
+    }
+  },
+  {
+    "id": "american",
+    "valid": true,
+    "body": {
+      "market": "1X2",
+      "format": "american",
+      "prices": {
+        "home": "+100",
+        "draw": "+200",
+        "away": "+300"
+      }
+    }
+  },
+  {
+    "id": "moneyline",
+    "valid": true,
+    "body": {
+      "market": "two-way",
+      "format": "american",
+      "prices": {
+        "first": "-150",
+        "second": "+140"
+      },
+      "assumption": {
+        "outcome": "first",
+        "probability": "0",
+        "basis": "Lower bound"
+      }
+    }
+  },
+  {
+    "id": "fractional-repeat",
+    "valid": true,
+    "body": {
+      "market": "two-way",
+      "format": "fractional",
+      "prices": {
+        "first": "2/3",
+        "second": "7/5"
+      },
+      "assumption": {
+        "outcome": "first",
+        "probability": "1",
+        "basis": "Upper bound"
+      }
+    }
+  },
+  {
+    "id": "underround",
+    "valid": true,
+    "body": {
+      "market": "two-way",
+      "format": "decimal",
+      "prices": {
+        "first": "3",
+        "second": "3"
+      }
+    }
+  },
+  {
+    "id": "extreme",
+    "valid": true,
+    "body": {
+      "market": "two-way",
+      "format": "decimal",
+      "prices": {
+        "first": "1E25",
+        "second": "1.000000000000000000000000001"
+      }
+    }
+  },
+  {
+    "id": "zero",
+    "valid": false,
+    "body": {
+      "market": "two-way",
+      "format": "decimal",
+      "prices": {
+        "first": "0",
+        "second": "2"
+      }
+    }
+  },
+  {
+    "id": "nan",
+    "valid": false,
+    "body": {
+      "market": "two-way",
+      "format": "decimal",
+      "prices": {
+        "first": "NaN",
+        "second": "2"
+      }
+    }
+  },
+  {
+    "id": "fraction-zero",
+    "valid": false,
+    "body": {
+      "market": "two-way",
+      "format": "fractional",
+      "prices": {
+        "first": "5/0",
+        "second": "1/1"
+      }
+    }
+  },
+  {
+    "id": "small-moneyline",
+    "valid": false,
+    "body": {
+      "market": "two-way",
+      "format": "american",
+      "prices": {
+        "first": "+99",
+        "second": "-100"
+      }
+    }
+  },
+  {
+    "id": "odds-range",
+    "valid": false,
+    "body": {
+      "market": "two-way",
+      "format": "decimal",
+      "prices": {
+        "first": "1e26",
+        "second": "2"
+      }
+    }
+  },
+  {
+    "id": "bad-assumption",
+    "valid": false,
+    "body": {
+      "market": "two-way",
+      "format": "decimal",
+      "prices": {
+        "first": "2",
+        "second": "2"
+      },
+      "assumption": {
+        "outcome": "first",
+        "probability": "1.01",
+        "basis": "outside"
+      }
+    }
+  },
+  {
+    "id": "missing-basis",
+    "valid": false,
+    "body": {
+      "market": "two-way",
+      "format": "decimal",
+      "prices": {
+        "first": "2",
+        "second": "2"
+      },
+      "assumption": {
+        "outcome": "first",
+        "probability": "0.5",
+        "basis": " "
+      }
+    }
+  },
+  {
+    "id": "missing-price",
+    "valid": false,
+    "body": {
+      "market": "two-way",
+      "format": "decimal",
+      "prices": {
+        "first": "",
+        "second": "2"
+      }
+    }
+  }
+]

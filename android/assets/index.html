@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'none'; script-src 'self'; style-src 'self'"
+    />
+    <title>DRAGONHYDRA Intelligence</title>
+    <link rel="stylesheet" href="style.css" />
+    <script defer src="app.js"></script>
+  </head>
+  <body>
+    <header>
+      <b class="brand">◩ &nbsp; DRAGONHYDRA</b><span>Offline edition</span>
+    </header>
+    <main>
+      <section id="overview">
+        <div class="kicker">SPORTS INTELLIGENCE</div>
+        <h1>Season notebook</h1>
+        <p>
+          Historical football research from the workstation’s pinned
+          OpenFootball archive.
+        </p>
+        <div class="summary">
+          <div><strong id="games">—</strong><small>Holdout matches</small></div>
+          <div>
+            <strong id="seasons">—</strong><small>League seasons</small>
+          </div>
+          <div><strong id="count">—</strong><small>Local quotes</small></div>
+        </div>
+        <h2>Model evaluation</h2>
+        <label>Competition<select id="league"></select></label>
+        <p>
+          Mean multiclass Brier score by season. Lower scores indicate smaller
+          probability errors.
+        </p>
+        <div id="research"></div>
+        <details>
+          <summary>Source and method</summary>
+          <p>
+            Fixed home, draw and away frequencies from 2019–20. Each subsequent
+            holdout season is compared with a uniform baseline. Estimates
+            describe past performance.
+          </p>
+          <div id="sources"></div>
+        </details>
+        <label
+          >Appearance<select id="theme">
+            <option value="system">System theme</option>
+            <option value="light">Light</option>
+            <option value="dark">Dark</option>
+          </select></label
+        >
+      </section>
+      <section id="calculator" hidden>
+        <div class="kicker">MATHEMATICAL CALCULATION</div>
+        <h1>Market calculator</h1>
+        <div class="pair">
+          <label
+            >Market<select id="market">
+              <option>two-way</option>
+              <option>1X2</option>
+            </select></label
+          ><label
+            >Odds format<select id="format">
+              <option>decimal</option>
+              <option>fractional</option>
+              <option>american</option>
+            </select></label
+          >
+        </div>
+        <div id="prices"></div>
+        <details id="assume">
+          <summary>Expected value assumption</summary>
+          <label>Outcome<select id="outcome"></select></label
+          ><label
+            >Probability (0–1)<input
+              id="prob"
+              inputmode="decimal"
+              placeholder="0.45" /></label
+          ><label
+            >Basis<input
+              id="basis"
+              maxlength="200"
+              placeholder="Explain this probability"
+          /></label>
+        </details>
+        <button id="calculate" class="primary">Calculate market</button>
+        <div id="result" aria-live="polite"></div>
+        <details>
+          <summary>Formulas and assumptions</summary>
+          <p>
+            For decimal odds d, implied q = 1/d. Let B be the sum of q.
+            Normalized probability is q/B, fair decimal odds are B/q, overround
+            is B−1 and theoretical margin is 1−1/B. With an explicit assumed
+            probability p, net EV per unit is p × d − 1. Outcomes must be
+            exhaustive and mutually exclusive. Fees, pushes and taxes are
+            excluded.
+          </p>
+        </details>
+      </section>
+      <section id="history" hidden>
+        <div class="kicker">LOCAL EVIDENCE</div>
+        <h1>Quote history</h1>
+        <p>
+          Import a historical full-time match winner ledger. Each series retains
+          its event, source, selection and UTC observation times.
+        </p>
+        <div class="actions">
+          <button id="import" class="primary">Import JSON</button
+          ><button id="json">Export JSON</button
+          ><button id="csv">Export CSV</button>
+        </div>
+        <output id="docstatus" aria-live="polite"></output
+        ><label
+          >Search history<input
+            id="query"
+            type="search"
+            placeholder="Event, source or selection" /></label
+        ><label>Series<select id="series"></select></label>
+        <div id="movement"></div>
+        <div id="records"></div>
+      </section>
+    </main>
+    <nav aria-label="Sections">
+      <button data-page="overview">Overview</button
+      ><button data-page="calculator">Calculator</button
+      ><button data-page="history">History</button>
+    </nav>
+  </body>
+</html>
