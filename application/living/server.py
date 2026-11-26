@@ -43,7 +43,7 @@ class Handler(BaseHTTPRequestHandler):
             if self.headers.get('Sec-Fetch-Site') in ('cross-site','same-site'):return self.send(403,{'error':'Cross-site requests are rejected'})
             if len(self.path)>8000:return self.send(414,{'error':'URL too long'})
             p=urlsplit(self.path);path=p.path;query={k:v[0] for k,v in parse_qs(p.query).items()}
-            if not post and path in ('/','/app.js','/sources.js','/workstation.js','/cockpit.js','/cockpit.css','/app.css','/beginner.js','/beginner.css','/help.json'):
+            if not post and path in ('/','/app.js','/sources.js','/workstation.js','/cockpit.js','/cockpit.css','/app.css','/beginner.js','/beginner.css','/markets.js','/markets.css','/backtest.json','/help.json'):
                 name='index.html' if path=='/' else path[1:]
                 asset=(Path(__file__).with_name('web')/name).read_bytes()
                 return self.send(200,json.loads(asset) if path.endswith('.json') else asset,'text/html' if path=='/' else 'application/json' if path.endswith('.json') else 'text/css' if path.endswith('.css') else 'text/javascript')
@@ -76,6 +76,18 @@ class Handler(BaseHTTPRequestHandler):
             if bridge and not admin and not session and (post or path not in ('/api/status','/api/observations')):return self.send(403,{'error':'Joomla bridge credential is read-only and endpoint-scoped'})
             if post and not admin and (origin!=server.origin or not hmac.compare_digest(self.headers.get('X-DH-CSRF',''),session['csrf'])):return self.send(403,{'error':'Same-origin request and CSRF token required'})
             if post:
+                if path=='/api/market/calculation':
+                    from .market_analysis import calculate_market
+                    return self.send(200,calculate_market(body))
+                if path=='/api/scoreboard/collect':
+                    from .scoreboards import source_for
+                    if rt.mode!='connected':raise Blocked('Connected mode is required to collect a scoreboard')
+                    source=source_for(body['league'],body['day'])
+                    existing=next((s for s in rt.store.sources() if s['id']==source['id']),None)
+                    if existing and (existing.get('location')!=source['location'] or existing.get('options')!=source['options'] or existing['adapter']!='http'):
+                        raise ValueError('A different source already owns this ID')
+                    if not existing:rt.configure_source(source)
+                    return self.send(202,{'task':rt.acquisition.submit(source['id']), 'source':source['id']})
                 if path=='/api/preferences':
                     if set(body)-{'beginner','tour_complete'} or any(type(v) is not bool for v in body.values()):raise ValueError('Preferences accept only beginner and tour_complete booleans')
                     value={'beginner':True,'tour_complete':False,**(rt.store.state('ui','preferences') or {}),**body};rt.store.state('ui','preferences',value);return self.send(200,value)
@@ -160,7 +172,11 @@ class Handler(BaseHTTPRequestHandler):
                     rt.config['ai']=ai;atomic_json(rt.config_path,rt.config);return self.send(200,{'status':'CONFIGURED','enabled':ai['enabled']})
                 if path=='/api/ai/explain':
                     from .connectors import local_ai
-                    evidence=rt.store.query(body.get('filters'),50);return self.send(200,local_ai(rt.config.get('ai',{}),evidence))
+                    if 'market' in body:
+                        from .market_analysis import calculate_market
+                        evidence=calculate_market(body['market'])
+                    else:evidence=rt.store.query(body.get('filters'),50)
+                    return self.send(200,local_ai(rt.config.get('ai',{}),evidence))
                 if path=='/api/shutdown':
                     self.send(200,{'status':'STOPPING'});threading.Thread(target=server.shutdown,daemon=True).start();return
             else:
@@ -180,6 +196,9 @@ class Handler(BaseHTTPRequestHandler):
                 if path=='/api/cloud/receipts':return self.send(200,sorted(rt.store.states('cloud-receipt'),key=lambda r:r['at'],reverse=True)[:100])
                 if path=='/api/session':return self.send(200,{'csrf':session['csrf'] if session else None,'authenticated':True})
                 if path=='/api/status':return self.send(200,rt.status())
+                if path=='/api/scoreboard/events':
+                    from .scoreboards import saved_events
+                    return self.send(200,saved_events(rt.store,query))
                 if path=='/api/football/research':
                     from .football_research import research
                     return self.send(200,research(rt.store,query))

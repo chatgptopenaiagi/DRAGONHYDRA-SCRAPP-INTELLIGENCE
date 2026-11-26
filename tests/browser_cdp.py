@@ -1,5 +1,5 @@
 """Small Edge DevTools harness using the already installed websocket-client."""
-import base64,json,subprocess,time,urllib.request
+import base64,os,json,subprocess,time,urllib.request
 from pathlib import Path
 import websocket
 
@@ -7,7 +7,7 @@ class Browser:
     def __init__(self,folder):
         self.folder=Path(folder);self.folder.mkdir(parents=True,exist_ok=False)
         self.log=(self.folder/'edge.log').open('w')
-        self.process=subprocess.Popen([r'C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe','--headless=new','--disable-gpu','--no-first-run','--no-default-browser-check','--remote-debugging-port=0','--remote-allow-origins=http://127.0.0.1','--user-data-dir='+str(self.folder/'profile'),'about:blank'],stdout=self.log,stderr=self.log,creationflags=subprocess.CREATE_NO_WINDOW)
+        self.process=subprocess.Popen([os.environ.get('DH_TEST_BROWSER',r'C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe'),'--headless=new','--disable-gpu','--no-first-run','--no-default-browser-check','--remote-debugging-port=0','--remote-allow-origins=http://127.0.0.1','--user-data-dir='+str(self.folder/'profile'),'about:blank'],stdout=self.log,stderr=self.log,creationflags=subprocess.CREATE_NO_WINDOW)
         active=self.folder/'profile/DevToolsActivePort';deadline=time.monotonic()+25
         port=None
         while self.process.poll() is None and time.monotonic()<deadline:

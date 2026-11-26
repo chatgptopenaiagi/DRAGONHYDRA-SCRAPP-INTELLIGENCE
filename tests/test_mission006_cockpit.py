@@ -42,7 +42,19 @@ class Cockpit(unittest.TestCase):
     def test_owner_action_never_changes_data_or_starts_codex(self):
         r=self.rt.registry.run('request_engineering_diagnostic',{'instruction':'Inspect CSV error'});self.assertEqual(r['output']['state'],'AWAITING_OWNER');self.assertFalse(self.rt.store.states('engineering-job'));a=self.rt.registry.action(r['output']['id'],False);self.assertEqual(a['state'],'DECLINED')
     def test_cancel_suppresses_reply_and_subsequent_tools(self):
-        self.mock.delay=.3;self.mock.tool='get_system_status';s=self.create(tools=['get_system_status']);t=self.chat.send({'session_id':s['id'],'text':'slow'});time.sleep(.1);self.chat.cancel(t['id']);r=self.wait(t);self.assertEqual(r['state'],'CANCELLED');self.assertEqual(len(self.mock.calls),1);self.assertFalse(self.rt.store.states('tool-receipt'));self.assertEqual(len(self.chat.detail(s['id'])['messages']),1)
+        self.mock.release_response = threading.Event()
+        self.mock.tool = 'get_system_status'
+        session = self.create(tools=['get_system_status'])
+        turn = self.chat.send({'session_id':session['id'], 'text':'slow'})
+        try:
+            self.assertTrue(self.mock.received.wait(10), 'Synthetic provider never received the request')
+            self.chat.cancel(turn['id'])
+        finally:
+            self.mock.release_response.set()
+        self.assertEqual(self.wait(turn)['state'], 'CANCELLED')
+        self.assertEqual(len(self.mock.calls), 1)
+        self.assertFalse(self.rt.store.states('tool-receipt'))
+        self.assertEqual(len(self.chat.detail(session['id'])['messages']), 1)
     def test_cannot_send_duplicate_active_turn(self):
         self.mock.delay=.3;s=self.create();t=self.chat.send({'session_id':s['id'],'text':'one'})
         with self.assertRaises(Blocked):self.chat.send({'session_id':s['id'],'text':'two'})

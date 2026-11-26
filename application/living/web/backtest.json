@@ -1,0 +1,383 @@
+{
+  "schema": "dh.preseason-evaluation/1",
+  "category": "STATISTICAL ESTIMATE",
+  "training_snapshot_date": "2021-04-28",
+  "leagues": {
+    "en.1": {
+      "train": {
+        "season": "2019-20",
+        "url": "https://raw.githubusercontent.com/openfootball/football.json/808a728e95cf47d082c9667e18273f55d619932e/2019-20/en.1.json",
+        "sha256": "83ddf9b81a72a71c487ca8f8f9fb19ff7b297dfd644374d809af6062b7b0d4d1",
+        "n": 380,
+        "first_date": "2019-08-09",
+        "last_date": "2020-07-26"
+      },
+      "holdouts": [
+        {
+          "source": {
+            "season": "2021-22",
+            "url": "https://raw.githubusercontent.com/openfootball/football.json/a670c01830c68f759041b8fce2d3c60b6318ab7e/2021-22/en.1.json",
+            "sha256": "fbdfd426fa18fa2f8630b77de87c082734da495ac4668d6d72f29f76b73b9564",
+            "n": 380,
+            "first_date": "2021-08-13",
+            "last_date": "2022-05-22"
+          },
+          "prior": {
+            "home": 0.4516971279373368,
+            "draw": 0.24281984334203655,
+            "away": 0.30548302872062666
+          },
+          "frequency": {
+            "brier": 0.6489322379498912,
+            "log_loss": 1.0712567710502907,
+            "observed_shares": {
+              "home": 0.42894736842105263,
+              "draw": 0.23157894736842105,
+              "away": 0.3394736842105263
+            },
+            "calibration_gap": {
+              "home": 0.022749759516284163,
+              "draw": 0.011240895973615495,
+              "away": -0.03399065548989966
+            }
+          },
+          "uniform": {
+            "brier": 0.6666666666666667,
+            "log_loss": 1.0986122886681098,
+            "observed_shares": {
+              "home": 0.42894736842105263,
+              "draw": 0.23157894736842105,
+              "away": 0.3394736842105263
+            },
+            "calibration_gap": {
+              "home": -0.09561403508771932,
+              "draw": 0.10175438596491226,
+              "away": -0.0061403508771930015
+            }
+          },
+          "accuracy": 0.42894736842105263
+        },
+        {
+          "source": {
+            "season": "2022-23",
+            "url": "https://raw.githubusercontent.com/openfootball/football.json/a670c01830c68f759041b8fce2d3c60b6318ab7e/2022-23/en.1.json",
+            "sha256": "8d09f0f9846981626cdfec48903e1f21e7c79aabe6f92535c9e092e8e79b808b",
+            "n": 380,
+            "first_date": "2022-08-05",
+            "last_date": "2023-05-28"
+          },
+          "prior": {
+            "home": 0.4516971279373368,
+            "draw": 0.24281984334203655,
+            "away": 0.30548302872062666
+          },
+          "frequency": {
+            "brier": 0.632441926008157,
+            "log_loss": 1.0490382307993829,
+            "observed_shares": {
+              "home": 0.4842105263157895,
+              "draw": 0.22894736842105262,
+              "away": 0.2868421052631579
+            },
+            "calibration_gap": {
+              "home": -0.032513398378452685,
+              "draw": 0.013872474920983924,
+              "away": 0.01864092345746876
+            }
+          },
+          "uniform": {
+            "brier": 0.6666666666666667,
+            "log_loss": 1.0986122886681098,
+            "observed_shares": {
+              "home": 0.4842105263157895,
+              "draw": 0.22894736842105262,
+              "away": 0.2868421052631579
+            },
+            "calibration_gap": {
+              "home": -0.15087719298245617,
+              "draw": 0.1043859649122807,
+              "away": 0.04649122807017542
+            }
+          },
+          "accuracy": 0.4842105263157895
+        },
+        {
+          "source": {
+            "season": "2023-24",
+            "url": "https://raw.githubusercontent.com/openfootball/football.json/a670c01830c68f759041b8fce2d3c60b6318ab7e/2023-24/en.1.json",
+            "sha256": "03e13eafbf78dfe00d7e89dd3bf6643986eb6e8fd86c7664aeb8c5bc0bed88d0",
+            "n": 380,
+            "first_date": "2023-08-11",
+            "last_date": "2024-05-19"
+          },
+          "prior": {
+            "home": 0.4516971279373368,
+            "draw": 0.24281984334203655,
+            "away": 0.30548302872062666
+          },
+          "frequency": {
+            "brier": 0.6377188258295119,
+            "log_loss": 1.0552808274548504,
+            "observed_shares": {
+              "home": 0.4605263157894737,
+              "draw": 0.21578947368421053,
+              "away": 0.3236842105263158
+            },
+            "calibration_gap": {
+              "home": -0.008829187852136877,
+              "draw": 0.027030369657826014,
+              "away": -0.018201181805689137
+            }
+          },
+          "uniform": {
+            "brier": 0.6666666666666667,
+            "log_loss": 1.0986122886681098,
+            "observed_shares": {
+              "home": 0.4605263157894737,
+              "draw": 0.21578947368421053,
+              "away": 0.3236842105263158
+            },
+            "calibration_gap": {
+              "home": -0.12719298245614036,
+              "draw": 0.11754385964912278,
+              "away": 0.009649122807017518
+            }
+          },
+          "accuracy": 0.4605263157894737
+        },
+        {
+          "source": {
+            "season": "2024-25",
+            "url": "https://raw.githubusercontent.com/openfootball/football.json/a670c01830c68f759041b8fce2d3c60b6318ab7e/2024-25/en.1.json",
+            "sha256": "c3d18f552d83382cd4b6b21127adbbfe38e7f8618ddc979fb5404f2df07d0a75",
+            "n": 380,
+            "first_date": "2024-08-16",
+            "last_date": "2025-05-25"
+          },
+          "prior": {
+            "home": 0.4516971279373368,
+            "draw": 0.24281984334203655,
+            "away": 0.30548302872062666
+          },
+          "frequency": {
+            "brier": 0.6567376522689786,
+            "log_loss": 1.082511543381403,
+            "observed_shares": {
+              "home": 0.40789473684210525,
+              "draw": 0.24473684210526317,
+              "away": 0.3473684210526316
+            },
+            "calibration_gap": {
+              "home": 0.04380239109523154,
+              "draw": -0.0019169987632266239,
+              "away": -0.041885392332004945
+            }
+          },
+          "uniform": {
+            "brier": 0.6666666666666667,
+            "log_loss": 1.0986122886681098,
+            "observed_shares": {
+              "home": 0.40789473684210525,
+              "draw": 0.24473684210526317,
+              "away": 0.3473684210526316
+            },
+            "calibration_gap": {
+              "home": -0.07456140350877194,
+              "draw": 0.08859649122807015,
+              "away": -0.01403508771929829
+            }
+          },
+          "accuracy": 0.40789473684210525
+        }
+      ]
+    },
+    "de.1": {
+      "train": {
+        "season": "2019-20",
+        "url": "https://raw.githubusercontent.com/openfootball/football.json/808a728e95cf47d082c9667e18273f55d619932e/2019-20/de.1.json",
+        "sha256": "efae5648954d1b15c4fb28685495d19c4509428a0e5370f843c82476d66878c0",
+        "n": 306,
+        "first_date": "2019-08-16",
+        "last_date": "2020-06-27"
+      },
+      "holdouts": [
+        {
+          "source": {
+            "season": "2021-22",
+            "url": "https://raw.githubusercontent.com/openfootball/football.json/a670c01830c68f759041b8fce2d3c60b6318ab7e/2021-22/de.1.json",
+            "sha256": "f1b9901cffb6b073f389e730213b5f8efe6a9a73b2f86058794f2d0f1dcc54dc",
+            "n": 306,
+            "first_date": "2021-08-13",
+            "last_date": "2022-05-14"
+          },
+          "prior": {
+            "home": 0.40129449838187703,
+            "draw": 0.22330097087378642,
+            "away": 0.37540453074433655
+          },
+          "frequency": {
+            "brier": 0.6493945720850735,
+            "log_loss": 1.072513969980448,
+            "observed_shares": {
+              "home": 0.4673202614379085,
+              "draw": 0.238562091503268,
+              "away": 0.29411764705882354
+            },
+            "calibration_gap": {
+              "home": -0.06602576305603147,
+              "draw": -0.015261120629481567,
+              "away": 0.08128688368551301
+            }
+          },
+          "uniform": {
+            "brier": 0.6666666666666667,
+            "log_loss": 1.0986122886681098,
+            "observed_shares": {
+              "home": 0.4673202614379085,
+              "draw": 0.238562091503268,
+              "away": 0.29411764705882354
+            },
+            "calibration_gap": {
+              "home": -0.1339869281045752,
+              "draw": 0.09477124183006533,
+              "away": 0.039215686274509776
+            }
+          },
+          "accuracy": 0.4673202614379085
+        },
+        {
+          "source": {
+            "season": "2022-23",
+            "url": "https://raw.githubusercontent.com/openfootball/football.json/a670c01830c68f759041b8fce2d3c60b6318ab7e/2022-23/de.1.json",
+            "sha256": "b0c052dc75836dfc6b0d3781d35b828851db7377c9f6ccb39643dbbe1964f3bd",
+            "n": 306,
+            "first_date": "2022-08-05",
+            "last_date": "2023-05-27"
+          },
+          "prior": {
+            "home": 0.40129449838187703,
+            "draw": 0.22330097087378642,
+            "away": 0.37540453074433655
+          },
+          "frequency": {
+            "brier": 0.6510444229639364,
+            "log_loss": 1.075473396856333,
+            "observed_shares": {
+              "home": 0.4738562091503268,
+              "draw": 0.24509803921568626,
+              "away": 0.28104575163398693
+            },
+            "calibration_gap": {
+              "home": -0.07256171076844975,
+              "draw": -0.021797068341899845,
+              "away": 0.09435877911034962
+            }
+          },
+          "uniform": {
+            "brier": 0.6666666666666667,
+            "log_loss": 1.0986122886681098,
+            "observed_shares": {
+              "home": 0.4738562091503268,
+              "draw": 0.24509803921568626,
+              "away": 0.28104575163398693
+            },
+            "calibration_gap": {
+              "home": -0.14052287581699346,
+              "draw": 0.08823529411764705,
+              "away": 0.052287581699346386
+            }
+          },
+          "accuracy": 0.4738562091503268
+        },
+        {
+          "source": {
+            "season": "2023-24",
+            "url": "https://raw.githubusercontent.com/openfootball/football.json/a670c01830c68f759041b8fce2d3c60b6318ab7e/2023-24/de.1.json",
+            "sha256": "d104edde48a5e254545eac3d3ed379a09801e1ebcef5c6480e28bc36fcfa202d",
+            "n": 306,
+            "first_date": "2023-08-18",
+            "last_date": "2024-05-18"
+          },
+          "prior": {
+            "home": 0.40129449838187703,
+            "draw": 0.22330097087378642,
+            "away": 0.37540453074433655
+          },
+          "frequency": {
+            "brier": 0.6588706386713628,
+            "log_loss": 1.088056753845026,
+            "observed_shares": {
+              "home": 0.43790849673202614,
+              "draw": 0.2647058823529412,
+              "away": 0.2973856209150327
+            },
+            "calibration_gap": {
+              "home": -0.03661399835014911,
+              "draw": -0.04140491147915476,
+              "away": 0.07801890982930387
+            }
+          },
+          "uniform": {
+            "brier": 0.6666666666666667,
+            "log_loss": 1.0986122886681098,
+            "observed_shares": {
+              "home": 0.43790849673202614,
+              "draw": 0.2647058823529412,
+              "away": 0.2973856209150327
+            },
+            "calibration_gap": {
+              "home": -0.10457516339869283,
+              "draw": 0.06862745098039214,
+              "away": 0.03594771241830064
+            }
+          },
+          "accuracy": 0.43790849673202614
+        },
+        {
+          "source": {
+            "season": "2024-25",
+            "url": "https://raw.githubusercontent.com/openfootball/football.json/a670c01830c68f759041b8fce2d3c60b6318ab7e/2024-25/de.1.json",
+            "sha256": "f473d6595e6c29ebedc08b09177aed6a6b2ff0fa8378b82f51dea469139f44c3",
+            "n": 306,
+            "first_date": "2024-08-23",
+            "last_date": "2025-05-17"
+          },
+          "prior": {
+            "home": 0.40129449838187703,
+            "draw": 0.22330097087378642,
+            "away": 0.37540453074433655
+          },
+          "frequency": {
+            "brier": 0.657601522610699,
+            "log_loss": 1.0847532481128115,
+            "observed_shares": {
+              "home": 0.38562091503267976,
+              "draw": 0.25163398692810457,
+              "away": 0.3627450980392157
+            },
+            "calibration_gap": {
+              "home": 0.015673583349197273,
+              "draw": -0.02833301605431815,
+              "away": 0.012659432705120877
+            }
+          },
+          "uniform": {
+            "brier": 0.6666666666666667,
+            "log_loss": 1.0986122886681098,
+            "observed_shares": {
+              "home": 0.38562091503267976,
+              "draw": 0.25163398692810457,
+              "away": 0.3627450980392157
+            },
+            "calibration_gap": {
+              "home": -0.05228758169934644,
+              "draw": 0.08169934640522875,
+              "away": -0.02941176470588236
+            }
+          },
+          "accuracy": 0.38562091503267976
+        }
+      ]
+    }
+  }
+}

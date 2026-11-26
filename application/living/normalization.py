@@ -4,7 +4,7 @@ from decimal import Decimal, InvalidOperation
 from .contracts import encode,fingerprint,now
 
 ORIGINS={'SYNTHETIC','IMPORTED','COLLECTED','INFERRED'}
-KINDS={'NUMBER','PRICE','PERCENTAGE','SHORT_TEXT','SPORTS_RESULT','SPORTS_ODDS','FOOTBALL_RECORD','WEATHER_OBSERVATION','WEATHER_FORECAST','STATISTICAL_RESULT'}
+KINDS={'NUMBER','PRICE','PERCENTAGE','SHORT_TEXT','SPORTS_RESULT','SPORTS_ODDS','SPORT_EVENT','FOOTBALL_RECORD','WEATHER_OBSERVATION','WEATHER_FORECAST','STATISTICAL_RESULT'}
 def timestamp(value):
     if value in (None,''): return None
     dt=datetime.fromisoformat(str(value).replace('Z','+00:00'))
@@ -30,7 +30,7 @@ def normalize(raw,source,origin='IMPORTED',collected=None):
     text=field('text')
     if text is not None: text=str(text)[:20000]
     if kind=='SHORT_TEXT' and not text: raise ValueError('Text observation has no text')
-    if kind not in ('SHORT_TEXT','SPORTS_RESULT','FOOTBALL_RECORD') and value is None: raise ValueError('Measurement is missing')
+    if kind not in ('SHORT_TEXT','SPORTS_RESULT','SPORT_EVENT','FOOTBALL_RECORD') and value is None: raise ValueError('Measurement is missing')
     if kind=='SPORTS_ODDS' and (value is None or Decimal(value)<=1): raise ValueError('Decimal odds must exceed 1')
     if kind=='PERCENTAGE' and not Decimal(0)<=Decimal(value)<=Decimal(100): raise ValueError('Percentage outside 0..100')
     unit=str(field('unit',source.get('unit','unknown')) or 'unknown')[:80]

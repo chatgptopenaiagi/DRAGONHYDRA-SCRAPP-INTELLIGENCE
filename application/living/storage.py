@@ -22,9 +22,15 @@ class Store:
                 self.c.close();raise ValueError('Unowned or unsupported database version')
         t=time.perf_counter();self.integrity=self.c.execute('PRAGMA integrity_check').fetchone()[0];self.integrity_ms=(time.perf_counter()-t)*1000
         if self.integrity!='ok':self.c.close();raise ValueError('Database integrity failed; restore a verified backup')
-        if tables and self.c.execute('PRAGMA user_version').fetchone()[0]<3:
-            backup=self.path.with_name(self.path.name+'.before-schema3-'+str(time.time_ns()))
-            with closing(sqlite3.connect(backup)) as out:self.c.backup(out)
+        upgrade = tables and self.c.execute('PRAGMA user_version').fetchone()[0]<3
+        needs_index = tables and not self.c.execute("SELECT 1 FROM sqlite_master WHERE type='index' AND name='observation_display_time'").fetchone()
+        if upgrade or needs_index:
+            backup=self.path.with_name(self.path.name+('.before-schema3-' if upgrade else '.before-display-index-')+str(time.time_ns()))
+            with closing(sqlite3.connect(backup)) as out:
+                self.c.backup(out)
+                if out.execute('PRAGMA integrity_check').fetchone()[0]!='ok':
+                    self.c.close()
+                    raise ValueError('Pre-upgrade backup failed its integrity check')
         self.c.execute('PRAGMA foreign_keys=ON');self.c.execute('PRAGMA journal_mode=WAL');self.c.execute('PRAGMA synchronous=FULL')
         self.c.executescript('''BEGIN IMMEDIATE;
 CREATE TABLE IF NOT EXISTS metadata(key TEXT PRIMARY KEY,value TEXT NOT NULL);
@@ -38,6 +44,7 @@ CREATE TABLE IF NOT EXISTS aliases(scope TEXT NOT NULL,original TEXT NOT NULL,ca
 CREATE TABLE IF NOT EXISTS component_state(scope TEXT NOT NULL,id TEXT NOT NULL,payload TEXT NOT NULL,PRIMARY KEY(scope,id));
 CREATE TRIGGER IF NOT EXISTS immutable_update BEFORE UPDATE ON observations BEGIN SELECT RAISE(ABORT,'Original observations are immutable'); END;
 CREATE TRIGGER IF NOT EXISTS immutable_delete BEFORE DELETE ON observations BEGIN SELECT RAISE(ABORT,'Original observations are immutable'); END;
+CREATE INDEX IF NOT EXISTS observation_display_time ON observations(COALESCE(observed_at,json_extract(payload,'$.metadata.date'),collected_at),id);
 CREATE INDEX IF NOT EXISTS observation_time ON observations(observed_at,collected_at);
 CREATE INDEX IF NOT EXISTS observation_scope ON observations(source,series,unit,origin);
 CREATE INDEX IF NOT EXISTS observation_identity ON observations(source,identity_key,series,origin);
@@ -70,6 +77,13 @@ COMMIT;''')
         with self.lock,self.c:self.c.execute('UPDATE tasks SET state=?,updated_at=?,progress=?,result=? WHERE id=?',(state,now(),progress,encode(result) if result is not None else None,id))
     def tasks(self):
         with self.lock:return [dict(r)|{'payload':json.loads(r['payload']),'result':json.loads(r['result']) if r['result'] else None} for r in self.c.execute('SELECT * FROM tasks ORDER BY created_at DESC LIMIT 200')]
+    def latest_scoreboard(self, source):
+        with self.lock:
+            row=self.c.execute('''SELECT payload FROM receipts WHERE json_extract(payload,'$.source_id')=?
+                AND json_type(payload,'$.scoreboard_ids')='array'
+                ORDER BY julianday(json_extract(payload,'$.committed_at')) DESC,rowid DESC LIMIT 1''',(source,)).fetchone()
+        return json.loads(row[0]) if row else None
+
     def receipt(self,id):
         with self.lock:
             r=self.c.execute('SELECT payload FROM receipts WHERE id=?',(id,)).fetchone();return json.loads(r[0]) if r else None

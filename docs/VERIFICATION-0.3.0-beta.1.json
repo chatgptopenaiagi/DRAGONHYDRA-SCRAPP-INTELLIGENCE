@@ -1,0 +1,282 @@
+{
+  "version": "0.3.0-beta.1",
+  "baseline": {
+    "public": "db58b3c4a50593e651cb32d16ea7ce693464c114",
+    "local": "5f8eee24040071b245cf463e2c128cc39660a238",
+    "equipped_unittest": {
+      "discovered": 136,
+      "passed": 126,
+      "errors": 9,
+      "skipped": 1
+    },
+    "first_environment": {
+      "errors": 10,
+      "missing_dependency": "psycopg"
+    }
+  },
+  "validation": {
+    "discovered": 148,
+    "passed": 147,
+    "skipped": 1,
+    "reason": "Private champs.csv was not supplied to portable regression discovery",
+    "seconds": 83.981
+  },
+  "windows": {
+    "status": "PASS",
+    "version": "0.3.0-beta.1",
+    "manifest_files": 1743,
+    "portable_sha256": "c29478e702443307aebd33976639ebc9ee3ba745b1bfd9895082d8798a7da506",
+    "installer_sha256": "0e8ff24d21b756a2477ce6583186c7edde8f03b62ea8c1fbc4ac507a98fab974",
+    "executable_sha256": "32d8e6cd64e1cfb1ff0ed8e9479727042ab2b3040907ac805c7d8fa3550ffe7d",
+    "native_windows_opened_and_closed": 2,
+    "install_upgrade_uninstall": "PASS",
+    "browser_runs": {
+      "portable-browser": {
+        "status": "PASS",
+        "version": "0.3.0-beta.1",
+        "checks": [
+          "fresh offline startup",
+          "anonymous request rejected",
+          "synthetic provenance rendered",
+          "confirmed empty day retains exportable receipt",
+          "offline collection remains disabled",
+          "four holdouts rendered",
+          "overround and margin displayed",
+          "downloaded scenario reproduces EV",
+          "optional AI failure preserves evidence",
+          "two bookmakers and timestamped dispersion displayed",
+          "scoreboard fits mobile viewport",
+          "mobile navigation leaves the competition visible",
+          "no browser runtime errors",
+          "graceful process exit"
+        ],
+        "startup_seconds": 0.817,
+        "sha256": "32d8e6cd64e1cfb1ff0ed8e9479727042ab2b3040907ac805c7d8fa3550ffe7d"
+      },
+      "installed-browser": {
+        "status": "PASS",
+        "version": "0.3.0-beta.1",
+        "checks": [
+          "fresh offline startup",
+          "anonymous request rejected",
+          "synthetic provenance rendered",
+          "confirmed empty day retains exportable receipt",
+          "offline collection remains disabled",
+          "four holdouts rendered",
+          "overround and margin displayed",
+          "downloaded scenario reproduces EV",
+          "optional AI failure preserves evidence",
+          "two bookmakers and timestamped dispersion displayed",
+          "scoreboard fits mobile viewport",
+          "mobile navigation leaves the competition visible",
+          "no browser runtime errors",
+          "graceful process exit"
+        ],
+        "startup_seconds": 0.915,
+        "sha256": "32d8e6cd64e1cfb1ff0ed8e9479727042ab2b3040907ac805c7d8fa3550ffe7d"
+      }
+    }
+  },
+  "source_browser": {
+    "status": "PASS",
+    "version": "0.3.0-beta.1",
+    "checks": [
+      "fresh offline startup",
+      "anonymous request rejected",
+      "synthetic provenance rendered",
+      "confirmed empty day retains exportable receipt",
+      "offline collection remains disabled",
+      "four holdouts rendered",
+      "overround and margin displayed",
+      "downloaded scenario reproduces EV",
+      "optional AI failure preserves evidence",
+      "two bookmakers and timestamped dispersion displayed",
+      "scoreboard fits mobile viewport",
+      "mobile navigation leaves the competition visible",
+      "no browser runtime errors",
+      "graceful process exit"
+    ],
+    "startup_seconds": 0.724,
+    "sha256": null
+  },
+  "postgresql": {
+    "status": "PASS",
+    "server_version": "18.6",
+    "checks": [
+      "disposable cluster",
+      "provision",
+      "migrate empty SQLite snapshot",
+      "activate and verify",
+      "scoreboard receipt and replay",
+      "provider fixture-quote relation",
+      "research API projection"
+    ],
+    "observations": 3
+  },
+  "public_football": {
+    "TheSportsDB": {
+      "status": 200,
+      "rows": 10,
+      "url": "https://www.thesportsdb.com/api/v1/json/123/all_leagues.php",
+      "sha256": "cd70e9271863e2069137c6a7438b18e380ec6273b06abb770cdd61319027770e"
+    },
+    "OpenLigaDB": {
+      "status": 200,
+      "rows": 44,
+      "url": "https://api.openligadb.de/getavailableleagues/2024",
+      "sha256": "0cccea1be2cdaa7d5c1bc5c35a10c7b4936d65768e36850b9b62e7df4c2a3826"
+    }
+  },
+  "scoreboards": {
+    "nba": {
+      "url": "https://site.api.espn.com/apis/site/v2/sports/basketball/nba/scoreboard?dates=20240101",
+      "state": "COMPLETE",
+      "events": 8,
+      "source_hash": "273b12f2f4767420f7280ab9fb2b8681e2c9e53b03be97ca2bb76b7572a24190",
+      "captured_at": "2026-11-26T08:42:50.737704Z"
+    },
+    "nhl": {
+      "url": "https://site.api.espn.com/apis/site/v2/sports/hockey/nhl/scoreboard?dates=20240102",
+      "state": "COMPLETE",
+      "events": 13,
+      "source_hash": "d47c0641a1222a1945bef3815a27d15823a15f6490a7007317024e27e98eb3fc",
+      "captured_at": "2026-11-26T08:42:52.205120Z"
+    },
+    "nfl": {
+      "url": "https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard?dates=20240107",
+      "state": "COMPLETE",
+      "events": 14,
+      "source_hash": "e0193a67db6e3274db42be96f403fd112d898a760593d7f8de93936f37141435",
+      "captured_at": "2026-11-26T08:42:53.335871Z"
+    },
+    "mlb": {
+      "url": "https://site.api.espn.com/apis/site/v2/sports/baseball/mlb/scoreboard?dates=20240601",
+      "state": "COMPLETE",
+      "events": 15,
+      "source_hash": "3e73f5f44380ad7d93c87c15d12cb65928c20b1428495fca41ebd345235e7120",
+      "captured_at": "2026-11-26T08:42:54.584024Z"
+    },
+    "eng.1": {
+      "url": "https://site.api.espn.com/apis/site/v2/sports/soccer/eng.1/scoreboard?dates=20240519",
+      "state": "COMPLETE",
+      "events": 10,
+      "source_hash": "7aa95c89b3225de7d3d7c0774f5081dc331737270edfc0969c3aa1dc8c350129",
+      "captured_at": "2026-11-26T08:43:04.133803Z"
+    }
+  },
+  "failed_or_unverified": [
+    "Initial ESPN Premier League request for 2024-01-01 failed with a transport error. A separate 2024-05-19 collection returned ten events.",
+    "First package omitted Tcl/Tk and was rejected. The accepted binaries passed native-window tests.",
+    "First Edge and full Chrome harness launches exited before opening their test endpoints. Isolated Chromium headless shell completed browser acceptance.",
+    "No live bookmaker price, external cloud inference, Android package or live Joomla site was verified for this release.",
+    "An initial disposable PostgreSQL harness inherited an output pipe on Windows. The isolated cluster was stopped, the harness was corrected, and the succeeding run used a fresh cluster.",
+    "A pre-publication run exposed a timing race in the mock cancellation test. The fixture now waits for the actual request and gates its response. The final full suite passed."
+  ],
+  "benchmark": {
+    "dataset_rows": 3341,
+    "replication": "Warm single-host reads against a private, integrity-checked SQLite backup. Two benchmark runs, no cold-boot or production latency claim.",
+    "before": {
+      "rows": 3341,
+      "history25": {
+        "n": 31,
+        "median_ms": 35.613,
+        "max_ms": 49.318
+      },
+      "research25": {
+        "n": 11,
+        "median_ms": 375.082,
+        "max_ms": 420.861
+      }
+    },
+    "after": {
+      "rows": 3341,
+      "history25": {
+        "n": 31,
+        "median_ms": 0.487,
+        "max_ms": 0.835
+      },
+      "research25": {
+        "n": 11,
+        "median_ms": 299.061,
+        "max_ms": 375.342
+      }
+    },
+    "empty_source_startup": {
+      "empty_source_startup_trials": {
+        "baseline": [
+          {
+            "startup_s": 0.858,
+            "rss_mib": 30.3,
+            "cpu_s": 0.234
+          },
+          {
+            "startup_s": 0.698,
+            "rss_mib": 30.1,
+            "cpu_s": 0.188
+          },
+          {
+            "startup_s": 0.634,
+            "rss_mib": 30.1,
+            "cpu_s": 0.234
+          },
+          {
+            "startup_s": 0.653,
+            "rss_mib": 30.2,
+            "cpu_s": 0.234
+          }
+        ],
+        "candidate": [
+          {
+            "startup_s": 0.757,
+            "rss_mib": 30.3,
+            "cpu_s": 0.266
+          },
+          {
+            "startup_s": 0.654,
+            "rss_mib": 30.1,
+            "cpu_s": 0.203
+          },
+          {
+            "startup_s": 0.655,
+            "rss_mib": 30.1,
+            "cpu_s": 0.172
+          },
+          {
+            "startup_s": 0.71,
+            "rss_mib": 30.3,
+            "cpu_s": 0.203
+          }
+        ]
+      },
+      "median": {
+        "baseline": {
+          "startup_s": 0.675,
+          "rss_mib": 30.15,
+          "cpu_s": 0.234
+        },
+        "candidate": {
+          "startup_s": 0.682,
+          "rss_mib": 30.2,
+          "cpu_s": 0.203
+        }
+      },
+      "restore_exact_original_payloads": 3341
+    }
+  },
+  "preservation": {
+    "observation_count": 3341,
+    "original_backup_indexed_payloads_match": true,
+    "integrity_check": "ok",
+    "restored_via_launcher_matching_payloads": 3341
+  },
+  "release_files": {
+    "DRAGONHYDRA-Intelligence-0.3.0-beta.1-portable-20261126T091035Z.zip": {
+      "sha256": "c29478e702443307aebd33976639ebc9ee3ba745b1bfd9895082d8798a7da506",
+      "bytes": 19511869
+    },
+    "DRAGONHYDRA-Intelligence-Setup-0.3.0-beta.1-20261126T091035Z.exe": {
+      "sha256": "0e8ff24d21b756a2477ce6583186c7edde8f03b62ea8c1fbc4ac507a98fab974",
+      "bytes": 30445261
+    }
+  }
+}

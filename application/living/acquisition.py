@@ -28,6 +28,9 @@ class Table(HTMLParser):
 def parse(raw,filename,options=None):
     options=options or {}
     if len(raw)>MAX_BYTES:raise ValueError('File exceeds 20 MiB')
+    if options.get('format') == 'espn-scoreboard/1':
+        from .scoreboards import parse_scoreboard
+        return parse_scoreboard(json.loads(raw), options.get('league'))
     ext=Path(filename).suffix.lower()
     if ext in ('.csv','.tsv'):rows=list(csv.DictReader(io.StringIO(raw.decode('utf-8-sig')),delimiter='\t' if ext=='.tsv' else ','))
     elif ext=='.jsonl':rows=[json.loads(line,parse_float=str) for line in raw.decode('utf-8-sig').splitlines() if line.strip()]
@@ -141,7 +144,9 @@ class Acquisition:
                     for attempt in range(3):
                         try:raw,headers,url=fetch_public(source['location'],max_bytes=MAX_BYTES,allowed_hosts=(urlsplit(source['location']).hostname,));version=headers.get('etag') or headers.get('last-modified');break
                         except (OSError,HTTPFailure) as error:
-                            if isinstance(error,HTTPFailure) and error.status not in (429,500,502,503,504):raise
+                            if isinstance(error,HTTPFailure) and error.status==429:
+                                raise Blocked('Provider rate limit reached; retry after '+str(error.retry_after or 'the provider cooldown')) from error
+                            if isinstance(error,HTTPFailure) and error.status not in (500,502,503,504):raise
                             if attempt==2 or self.stop.wait(2**attempt):raise
                     origin='COLLECTED';filename=source.get('options',{}).get('filename','response.json')
                 else:
@@ -166,6 +171,8 @@ class Acquisition:
             from collections import Counter
             origins=dict(Counter(row['origin'] for row in normalized))
             receipt={'id':id,'source_id':source['id'],'method':method,'content_hash':sha,'dataset_version':version,'field_mapping':source.get('mapping',{}),'acquired_at':at,'rows_validated':len(rows),'validation_errors':0,'origin':next(iter(origins)) if len(origins)==1 else 'MIXED' if origins else origin,'observation_origins':origins}
+            if source.get('options',{}).get('format')=='espn-scoreboard/1':
+                receipt['scoreboard_ids']=[r['id'] for r in normalized]
             result=self.store.ingest(normalized,receipt,cancelled);self.store.task_update(id,'COMPLETE',100,result);self.store.event('INFO','IMPORT_COMPLETE',f'{source["id"]}: {result["inserted"]} inserted; {result["duplicates"]} duplicates')
         except Exception as e:
             state='CANCELLED' if isinstance(e,Cancelled) else 'BLOCKED' if isinstance(e,Blocked) else 'FAILED'

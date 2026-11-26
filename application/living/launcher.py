@@ -110,6 +110,8 @@ def serve(args):
                 ready=json.loads((data/'ready.json').read_text())
                 if ready.get('pid')==os.getpid():(data/'ready.json').rename(data/('ready.stopped-'+str(time.time_ns())+'.json'))
 def native(args):
+    from .tk_runtime import configure
+    configure()
     import tkinter as tk
     from tkinter import ttk,messagebox,filedialog
     from . import VERSION

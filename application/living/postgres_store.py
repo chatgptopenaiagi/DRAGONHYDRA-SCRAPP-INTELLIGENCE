@@ -49,7 +49,7 @@ class PostgresStore:
         comp=dimension('competitions',meta.get('competition'),meta.get('competition_name',meta.get('competition')));season=dimension('seasons',meta.get('season'))
         if contract=='football.competition/1':dimension('competitions',meta.get('provider_record_id',meta.get('competition')),meta.get('name'))
         if contract=='football.team/1':dimension('teams',meta.get('provider_record_id',meta.get('team_id',meta.get('name'))),meta.get('name'))
-        is_result=r['kind']=='SPORTS_RESULT';is_odds=r['kind']=='SPORTS_ODDS';event_id=meta.get('match_id') if is_odds else meta.get('provider_match_id') or meta.get('fixture_id') or meta.get('id') or (r['identity'] if is_result or contract in ('football.fixture/1','football.result/1') else None)
+        is_result=r['kind']=='SPORTS_RESULT';is_odds=r['kind']=='SPORTS_ODDS';event_id=(meta.get('provider_match_id') or meta.get('match_id')) if is_odds else meta.get('provider_match_id') or meta.get('fixture_id') or meta.get('id') or (r['identity'] if is_result or contract in ('football.fixture/1','football.result/1') else None)
         fixture=None
         if event_id:
             fixture=fingerprint([source,str(event_id)]);home=meta.get('home_team',meta.get('home'));away=meta.get('away_team',meta.get('away'));home_id=dimension('teams',meta.get('home_id') or home,home);away_id=dimension('teams',meta.get('away_id') or away,away)
@@ -84,6 +84,14 @@ class PostgresStore:
         with self.control.connect('readonly',True) as c:
             count=c.execute('SELECT COUNT(*) FROM '+self.relation('observations')).fetchone()[0];origins=dict(c.execute('SELECT origin,COUNT(*) FROM '+self.relation('observations')+' GROUP BY origin'));series=[dict(zip(('source','series','unit','origin','n','numeric_n'),r)) for r in c.execute('SELECT source,series,unit,origin,COUNT(*),COUNT(value) FROM '+self.relation('observations')+' GROUP BY source,series,unit,origin')];receipts=[r[0] for r in c.execute('SELECT payload FROM '+self.relation('import_receipts')+' ORDER BY payload->>\'committed_at\' DESC NULLS LAST LIMIT 30')]
         return {'observations':count,'provenance':origins,'series':series,'receipts':receipts,'integrity':'ok','integrity_basis':'Successful read of the selected schema; not a full PostgreSQL server corruption check','integrity_ms':None,'schema':'PostgreSQL 1','datastore':'POSTGRESQL','read_at':now(),'database':self.control.config()['database']+'.'+self.control.config()['schema'],'cached':False}
+    def latest_scoreboard(self, source):
+        sql = ("SELECT payload FROM " + self.relation('import_receipts') +
+               " WHERE payload->>'source_id'=%s AND jsonb_typeof(payload->'scoreboard_ids')='array'"
+               " ORDER BY (payload->>'committed_at')::timestamptz DESC,id DESC LIMIT 1")
+        with self.control.connect('readonly',True) as c:
+            row=c.execute(sql,(source,)).fetchone()
+        return row[0] if row else None
+
     def receipt(self,id):
         with self.control.connect('readonly',True) as c:r=c.execute('SELECT payload FROM '+self.relation('import_receipts')+' WHERE id=%s',(id,)).fetchone();return r[0] if r else None
     def analyses(self):

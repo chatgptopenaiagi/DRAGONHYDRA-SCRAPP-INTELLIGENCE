@@ -1,25 +1,28 @@
-# DRAGONHYDRA SCRAPP INTELLIGENCE
+# DRAGONHYDRA Next Generation
 
-Mission 006 candidate **0.2.0-beta.3** adds a five-company AI conversation cockpit to the Windows intelligence application. This local candidate passed packaged read-only SQL, cockpit and installer acceptance. **Public release is held:** OpenAI key authentication passed, but the authorized account has no API credits for the required genuine conversation test. Previous public beta.1 and beta.2 remain unchanged.
+A local-first Windows sports intelligence application for inspecting source records, comparing historical bookmaker prices and evaluating probability models. Version **0.3.0-beta.1** continues DRAGONHYDRA SCRAPP INTELLIGENCE.
 
-The portable executable and per-user installer include their runtime. Open DragonhydraIntelligence.exe, select a dedicated candidate data directory and free port, then Start / open dashboard. A newer launcher refuses to silently reuse an older running service. Original user data, releases and source evidence are preserved. Credentials and private datasets are not included in packages.
+[Download the Windows prerelease](https://github.com/chatgptopenaiagi/DRAGONHYDRA-SCRAPP-INTELLIGENCE/releases/tag/v0.3.0-beta.1) · [User guide, architecture and formulas](docs/next-generation/PLATFORM.md) · [Validation report](docs/RELEASE-0.3.0-beta.1.md) · [Roadmap](docs/next-generation/ROADMAP.md)
 
-## Working workflows
+## Start on Windows
 
-CSV import previews the actual file, creates a source, maps columns, validates records and commits atomically. Six football providers have independent configuration, protected credentials, budgets and receipts. API-Football authentication and bounded historical collection have passed live acceptance. Historical football results, bookmaker prices, synthetic observations and AI interpretations remain distinct.
+Extract the portable ZIP, then open DragonhydraIntelligence.exe. The installer also installs the same application for the current Windows user. Choose a data directory and a free port in the native launcher, then select **Start / open dashboard**. The first run opens an empty offline workspace. An existing SQLite workspace gets a verified backup before the history index is installed.
 
-AI Intelligence Cockpit offers OpenAI Responses, Claude Messages, xAI Responses, Microsoft developer interfaces and Manus tasks. Local compatible inference remains optional. Each conversation retains its own provider, endpoint, model, messages, usage and tool receipts. Floating chat can move, resize, dock, expand and minimize across dashboard views. Roundtable explicitly sends separate requests to selected companies and displays their independently identified replies. No fake company replies are generated when access is unavailable.
+- **Sports desk** shows collected ESPN events for the Premier League, NBA, NHL, MLB and NFL. Choose a date and league. Switch to configured connections to collect a scoreboard. Saved events, revisions and model evaluation remain available offline.
+- **Football research** shows source-scoped matches and quotes. Inspect a bookmaker snapshot, compare timestamped price movements, or export the source IDs behind a calculation.
+- **Sports odds** converts decimal, American and fractional prices. Calculate proportional fair odds, overround and an expected value under an explicitly named probability assumption.
+- **Historical model evaluation** compares frozen league outcome frequencies with a uniform model on independent seasons in England and Germany. The dashboard includes sample sizes, calibration and pinned source documents.
+- **Data sources and recovery** retain CSV import, six football adapters, original observations, task receipts, SQLite backup/restore and optional PostgreSQL. Model assistance uses explicit configuration. Core calculations run locally.
 
-The tool registry exposes bounded football and SQL queries, diagnostics and measured hardware readings. Data-changing requests become owner actions. The existing SQL maintenance guard is checked before any connection. Codex engineering attaches an existing authorized App Server thread and has passed an actual diagnostic through that worker; it does not create another Codex session or grant cloud models shell execution. Optional local read-only MCP uses a separate scoped credential on the existing loopback server.
+## Develop and verify
 
-## Verified limits
+```powershell
+py -3.13 -m venv .venv
+.\.venv\Scripts\python -m pip install -r requirements-build.txt
+.\.venv\Scripts\python -m unittest discover -s tests -p "test_*.py" -v
+.\.venv\Scripts\python application/living_launch.py
+```
 
-OpenAI inference is BLOCKED by account credit exhaustion. Claude, xAI, Microsoft and Manus have mock protocol acceptance only until authorized credentials and account access are configured. Mock replies are not live cloud verification. Owner-approved read-only SQL connection, version, identity and catalog queries passed live acceptance. Application-database access remains restricted by the Windows login; SQL writes remain blocked. Joomla live acceptance remains incomplete. Remote MCP execution and direct import of ChatGPT account plugins are not implemented. Manus and Copilot Studio use real task/channel lifecycles but do not have a verified local function-call interface in this beta; owner-selected tool receipts provide bounded context. CPU temperature and per-process network attribution are marked unavailable when no verified sensor exists.
+The historical SQL Server adapter remains available for legacy unit verification. The current analytical stores are SQLite and optional PostgreSQL. Android and Joomla were delivered on other DRAGONHYDRA tracks. This release distributes Windows x64 and source. No live bookmaker feed is bundled. Stored odds, calculated market weights and model estimates have distinct provenance.
 
-Conversation and credential security, bounded tools, cancellation, restart persistence, actual Edge interactions and installer lifecycle have local acceptance evidence. No purchase, subscription or automatic paid retry is performed. User-defined request limits are application-local, not account-wide billing caps. This is a beta candidate, not production certification.
-
-Read [read-only SQL operation](docs/mission-006/SQL-READONLY.md), [AI cockpit operation and limits](docs/mission-006/AI-COCKPIT.md), [Mission 006 user guide](docs/mission-006/USER-GUIDE.md), [module contracts](docs/mission-006/ARCHITECTURE.md) and [football provider documentation](docs/mission-005/FOOTBALL-API-COST-COMPARISON.md).
-
-## Development
-
-Use an isolated Python 3.12+ environment and requirements.txt; ordinary Windows use needs no developer interpreter. Run `python -m unittest discover -s tests -p "test_mission*.py" -v`. DPAPI tests require Windows. `python tests/mission006_cockpit_browser.py --exe PATH_TO_EXE` exercises actual Edge controls with synthetic provider fixtures and must be reported MOCK_PASS. No owner keys belong in tests or source. Build with the existing PyInstaller toolchain using `python tools/build_windows.py --mission 006 --version 0.2.0-beta.3`. Keep local evidence, private databases, DOCX credentials and DPAPI files out of publication.
+Older guides remain available for [football provider configuration](docs/mission-005/FOOTBALL-API-COST-COMPARISON.md), [the conversation cockpit](docs/mission-006/AI-COCKPIT.md) and [PostgreSQL](docs/mission-006/POSTGRESQL.md). See [AGENTS.md](AGENTS.md) for development and release procedures.

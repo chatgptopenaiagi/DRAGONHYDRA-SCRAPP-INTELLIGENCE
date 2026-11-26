@@ -46,4 +46,6 @@ def local_ai(config,evidence):
         c.request('POST',p.path or '/v1/chat/completions',body,{'Content-Type':'application/json'});r=c.getresponse();raw=r.read(100001)
         if r.status!=200 or len(raw)>100000:raise ValueError('Local AI endpoint returned an unsuccessful or oversized response')
         return {'classification':'AI_INTERPRETATION','model':config.get('model'),'input_fingerprint':fingerprint(evidence),'response':json.loads(raw),'limitations':'Unverified model interpretation; original observations remain unchanged'}
+    except (OSError, http.client.HTTPException) as exc:
+        raise Blocked('Optional local AI is unavailable. Check its configured loopback endpoint.') from exc
     finally:c.close()

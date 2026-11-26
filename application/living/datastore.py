@@ -14,6 +14,7 @@ class DataStore:
     def backend(self):return self.postgres.store if self.is_postgres else self.local
     def query(self,*a,**kw):return self.backend.query(*a,**kw)
     def ingest(self,*a,**kw):return self.backend.ingest(*a,**kw)
+    def latest_scoreboard(self,source):return self.backend.latest_scoreboard(source)
     def receipt(self,*a,**kw):return self.backend.receipt(*a,**kw)
     def save_analysis(self,*a,**kw):return self.backend.save_analysis(*a,**kw)
     def analyses(self,*a,**kw):return self.backend.analyses(*a,**kw)

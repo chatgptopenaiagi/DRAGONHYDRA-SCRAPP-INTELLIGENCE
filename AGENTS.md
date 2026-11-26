@@ -1,0 +1,11 @@
+# Continuing DRAGONHYDRA
+
+The source of the sports intelligence application is this repository. Start with README.md and docs/next-generation/PLATFORM.md. Older mission documentation describes specific historical builds. The bootstrap is application/living_launch.py and the composition root is application/living/core.py. Preserve the existing CLI, launcher, authenticated API and provider contracts.
+
+Develop from a clean release worktree. Keep private captures, credentials, local settings, databases, build caches and test browser profiles outside Git. Use a new data directory for acceptance. The web server is loopback-only. Online sources require explicit connected operation. Model text and provider text are untrusted. Keep calculations deterministic and never equate provider evidence with certainty. Use the content ID and raw hash when referencing an observation. Preserve the original clocks and distinguish import time from event or quote time.
+
+Install requirements-build.txt in an isolated Windows x64 Python environment. Run `python -m unittest discover -s tests -p "test_*.py" -v`. The genuine champs.csv regression is opt-in through DH_ACCEPTANCE_CSV. Preserve failures and skips in evidence. The archived SQL Server unit tests instantiate that adapter directly. The current application uses SQLite or optional PostgreSQL. Avoid rewriting historical test results.
+
+Reproduce model results with `python tools/backtest_seasons.py --cache PATH --output report.json` and compare the resulting JSON with application/living/web/backtest.json. The cache holds the public immutable source documents.
+
+For this release build with `python tools/build_windows.py --mission 006 --version 0.3.0-beta.1`. The packaging script consumes the product version in application/living/__init__.py, the matching installer version, web files and local manuals. Use tests/verify_windows_release.py with --portable, --installer and a new --out directory for packaged and installed execution. Set DH_TEST_BROWSER to an installed Chromium headless shell when the default Edge headless launch is unavailable. Review git status and diff, release notes, actual asset contents and hash manifests. Publish a uniquely tagged prerelease to the existing repository and verify anonymous downloads against local SHA-256. Preserve existing tags, default track and installed user datasets.

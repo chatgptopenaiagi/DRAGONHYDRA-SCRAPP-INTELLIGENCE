@@ -5,13 +5,17 @@ from urllib.parse import urlsplit
 class ChatMock:
     def __init__(self):
         self.calls=[];self.status=200;self.delay=0;self.tool=None;self.arguments={};self.malformed=False;self.echo=False
+        self.received=threading.Event();self.release_response=None
         owner=self
         class Handler(BaseHTTPRequestHandler):
             def log_message(self,*args):pass
             def do_GET(self):self.run()
             def do_POST(self):self.run()
             def run(self):
-                path=urlsplit(self.path).path;body=json.loads(self.rfile.read(int(self.headers.get('Content-Length','0'))) or b'{}');key=self.headers.get('Authorization',self.headers.get('x-api-key',self.headers.get('api-key',self.headers.get('x-manus-api-key',''))));owner.calls.append({'path':path,'body':body,'key':key});time.sleep(owner.delay)
+                path=urlsplit(self.path).path;body=json.loads(self.rfile.read(int(self.headers.get('Content-Length','0'))) or b'{}');key=self.headers.get('Authorization',self.headers.get('x-api-key',self.headers.get('api-key',self.headers.get('x-manus-api-key',''))));owner.calls.append({'path':path,'body':body,'key':key})
+                owner.received.set()
+                if owner.release_response is not None:owner.release_response.wait(10)
+                time.sleep(owner.delay)
                 status=owner.status
                 if key.endswith('invalid-test-key'):status=401
                 if status!=200:d={'error':{'code':'rate_limit' if status==429 else 'authentication_error','message':'SYNTHETIC FAILURE'}}
